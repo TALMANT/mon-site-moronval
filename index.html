@@ -217,10 +217,11 @@
       background: rgba(26,29,35,.5);
       z-index: 250;
       opacity: 0;
+      pointer-events: none;
       transition: opacity .3s ease;
     }
 
-    .mobile-overlay.open { opacity: 1; }
+    .mobile-overlay.open { opacity: 1; pointer-events: auto; }
 
     .mobile-nav {
       display: none;
@@ -237,6 +238,8 @@
     }
 
     .mobile-nav.open { right: 0; }
+
+    .hamburger { position: relative; z-index: 310; }
 
     .mobile-nav button {
       display: block;
