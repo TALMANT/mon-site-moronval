@@ -77,9 +77,19 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
   <!-- DIMENSIONS -->
   <h2 onclick="toggleSection(this)">Dimensions générales</h2>
   <div class="section" id="sec-dim">
-    <div class="row"><label>Portée ext. poteaux (m)</label><input type="number" id="portee" value="20" step="0.1" min="5" onchange="update()"></div>
+    <div class="row"><label>Largeur (ext. poteau)</label><input type="number" id="portee" value="20" step="0.1" min="5" onchange="update()"></div>
     <div class="row"><label>Nb travées</label><input type="number" id="nbTravees" value="10" min="2" max="30" onchange="update()"></div>
-    <div class="row"><label>Long. travée (m)</label><input type="number" id="longTravee" value="5" step="0.1" min="2" onchange="update()"></div>
+    <div class="row"><label>Long. travée (m)</label>
+      <select id="longTravee" onchange="update()">
+        <option value="1">1 m</option>
+        <option value="2">2 m</option>
+        <option value="3">3 m</option>
+        <option value="4">4 m</option>
+        <option value="5" selected>5 m</option>
+        <option value="6">6 m</option>
+        <option value="7">7 m</option>
+      </select>
+    </div>
     <div class="row"><label>Pente (%)</label><input type="number" id="pente" value="20" min="5" max="50" onchange="update()"></div>
     <div class="row"><label>Hauteur poteaux (m)</label><input type="number" id="hauteurPoteau" value="6" step="0.1" min="3" onchange="update()"></div>
   </div>
@@ -92,14 +102,12 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
       <div class="row"><label>Profondeur (m)</label><input type="number" id="auventGProf" value="3" step="0.1" min="1" max="10" onchange="update()"></div>
       <div class="row"><label>Nb travées auvent</label><input type="number" id="auventGNbTrav" value="12" min="1" max="30" onchange="update()"></div>
       <div class="row"><label>Pente auvent (%)</label><input type="number" id="auventGPente" value="15" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="auventGNbPannes" value="2" min="0" max="10" onchange="update()"></div>
     </div>
     <div class="row"><label>Auvent droit</label><input type="checkbox" id="auventD" onchange="toggleAuvent();update()"></div>
     <div class="sub-options" id="sub-auvD" style="display:none;">
       <div class="row"><label>Profondeur (m)</label><input type="number" id="auventDProf" value="3" step="0.1" min="1" max="10" onchange="update()"></div>
       <div class="row"><label>Nb travées auvent</label><input type="number" id="auventDNbTrav" value="12" min="1" max="30" onchange="update()"></div>
       <div class="row"><label>Pente auvent (%)</label><input type="number" id="auventDPente" value="15" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="auventDNbPannes" value="2" min="0" max="10" onchange="update()"></div>
     </div>
   </div>
 
@@ -113,7 +121,6 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
       <div class="row"><label>Nb travées appentis</label><input type="number" id="appGNbTrav" value="12" min="1" max="30" onchange="update()"></div>
       <div class="row"><label>Long. travée app. (m)</label><input type="number" id="appGLongTrav" value="5" step="0.1" min="2" onchange="update()"></div>
       <div class="row"><label>Pente appentis (%)</label><input type="number" id="appGPente" value="20" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="appGNbPannes" value="4" min="0" max="15" onchange="update()"></div>
     </div>
     <div class="row"><label>Appentis droit</label><input type="checkbox" id="appentisD" onchange="toggleAppentis();update()"></div>
     <div class="sub-options" id="sub-appD" style="display:none;">
@@ -122,14 +129,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
       <div class="row"><label>Nb travées appentis</label><input type="number" id="appDNbTrav" value="12" min="1" max="30" onchange="update()"></div>
       <div class="row"><label>Long. travée app. (m)</label><input type="number" id="appDLongTrav" value="5" step="0.1" min="2" onchange="update()"></div>
       <div class="row"><label>Pente appentis (%)</label><input type="number" id="appDPente" value="20" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="appDNbPannes" value="4" min="0" max="15" onchange="update()"></div>
     </div>
-  </div>
-
-  <!-- EMPANNAGE (simplifié) -->
-  <h2 onclick="toggleSection(this)">Empannage</h2>
-  <div class="section" id="sec-emp">
-    <div class="row"><label>Pannes interméd./versant</label><input type="number" id="nbPannesInter" value="6" min="1" max="15" onchange="update()"></div>
   </div>
 
   <!-- PLAQUES BETON -->
@@ -192,7 +192,6 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
         <option value="bac_acier">Bac acier nervuré</option>
         <option value="sandwich">Panneau sandwich</option>
         <option value="bois">Bardage bois</option>
-        <option value="fibrociment">Fibro-ciment</option>
       </select>
     </div>
     <div class="row" id="row-ralBard"><label>Couleur RAL</label>
@@ -251,13 +250,13 @@ function getConfig() {
     auventGProf: parseFloat(document.getElementById('auventGProf').value),
     auventGNbTrav: parseInt(document.getElementById('auventGNbTrav').value),
     auventGPente: parseFloat(document.getElementById('auventGPente').value),
-    auventGNbPannes: parseInt(document.getElementById('auventGNbPannes').value),
+    auventGNbPannes: 2,
     auventGGousset: 1.2,
     auventD: document.getElementById('auventD').checked,
     auventDProf: parseFloat(document.getElementById('auventDProf').value),
     auventDNbTrav: parseInt(document.getElementById('auventDNbTrav').value),
     auventDPente: parseFloat(document.getElementById('auventDPente').value),
-    auventDNbPannes: parseInt(document.getElementById('auventDNbPannes').value),
+    auventDNbPannes: 2,
     auventDGousset: 1.2,
     appentisG: document.getElementById('appentisG').checked,
     appGLarg: parseFloat(document.getElementById('appGLarg').value),
@@ -265,7 +264,7 @@ function getConfig() {
     appGNbTrav: parseInt(document.getElementById('appGNbTrav').value),
     appGLongTrav: parseFloat(document.getElementById('appGLongTrav').value),
     appGPente: parseFloat(document.getElementById('appGPente').value),
-    appGNbPannes: parseInt(document.getElementById('appGNbPannes').value),
+    appGNbPannes: 4,
     appGGousset: 1.5,
     appentisD: document.getElementById('appentisD').checked,
     appDLarg: parseFloat(document.getElementById('appDLarg').value),
@@ -273,14 +272,14 @@ function getConfig() {
     appDNbTrav: parseInt(document.getElementById('appDNbTrav').value),
     appDLongTrav: parseFloat(document.getElementById('appDLongTrav').value),
     appDPente: parseFloat(document.getElementById('appDPente').value),
-    appDNbPannes: parseInt(document.getElementById('appDNbPannes').value),
+    appDNbPannes: 4,
     appDGousset: 1.5,
     portee: parseFloat(document.getElementById('portee').value),
     nbTravees: parseInt(document.getElementById('nbTravees').value),
     longTravee: parseFloat(document.getElementById('longTravee').value),
     pente: parseFloat(document.getElementById('pente').value),
     hauteurPoteau: parseFloat(document.getElementById('hauteurPoteau').value),
-    nbPannesInter: parseInt(document.getElementById('nbPannesInter').value),
+    nbPannesInter: 6,
     distFaitiere: 0.16,
     goussetBas: 2,
     goussetHaut: 1,
@@ -1116,9 +1115,6 @@ function demanderDevis() {
     lines.push('PORTES : Aucune');
   }
 
-  lines.push('');
-  lines.push('EMPANNAGE');
-  lines.push('  Pannes intermédiaires/versant : ' + c.nbPannesInter);
   lines.push('');
   lines.push('---');
   lines.push('Merci de me contacter pour obtenir un devis détaillé.');
