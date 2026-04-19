@@ -1957,6 +1957,20 @@
     btn.disabled = false;
   }
 
+  // Simulateur 3D → Contact form (postMessage)
+  window.addEventListener('message', function(event) {
+    if (!event.data || event.data.type !== 'devis-simulateur') return;
+    const texte = event.data.texte || '';
+    const msgField = document.getElementById('message');
+    if (msgField) msgField.value = texte;
+    // Scroll to top of contact form
+    const contactSection = document.getElementById('contact');
+    if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
+    // Switch to contact tab (desktop + mobile)
+    const desktopBtns = document.querySelectorAll('nav button');
+    showTab('contact', desktopBtns[9]);
+  });
+
   // Scroll reveal
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {

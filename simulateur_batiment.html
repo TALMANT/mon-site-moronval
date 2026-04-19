@@ -33,6 +33,8 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
 .btn-small.danger { color: #E24B4A; border-color: #E24B4A; }
 .btn-add { font-size: 12px; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent); background: #fff; border-radius: 3px; cursor: pointer; margin-top: 2px; }
 .btn-add:hover { background: #f0f7ff; }
+.btn-devis { width: 100%; padding: 10px 14px; background: #b5602a; color: #fff; border: none; border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; letter-spacing: 0.3px; transition: background 0.15s; }
+.btn-devis:hover { background: #9a4f1e; }
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 #canvas3d { width: 100%; height: 100%; display: block; cursor: grab; }
 #canvas3d:active { cursor: grabbing; }
@@ -207,6 +209,8 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
     <div class="row"><label>Pignon gauche</label><input type="checkbox" id="bardPigG" checked onchange="update()"></div>
     <div class="row"><label>Pignon droit</label><input type="checkbox" id="bardPigD" checked onchange="update()"></div>
   </div>
+
+  <button class="btn-devis" onclick="demanderDevis()">&#128196; Demander un devis personnalisé</button>
 </div>
 
 <div class="main">
@@ -1012,6 +1016,122 @@ function update3D() {
 window.addEventListener('load', () => {
   setTimeout(() => { init3D(); }, 80);
 });
+
+// ========== DEMANDE DE DEVIS ==========
+function demanderDevis() {
+  const c = getConfig();
+
+  const typeLabels = {
+    double_pente: 'Double pente',
+    double_pente_desaxe: 'Double pente désaxé',
+    mono_pente: 'Mono pente'
+  };
+  const couvLabels = {
+    bac_acier_ag: 'Bac acier antigouttes',
+    bac_acier_std: 'Bac acier standard',
+    bac_acier_isole: 'Bac acier isolé (sandwich)',
+    fibrociment: 'Fibro-ciment',
+    tuile: 'Tuile'
+  };
+  const bardLabels = {
+    nergal: 'Tôle Nergal 1070',
+    bac_acier: 'Bac acier nervuré',
+    sandwich: 'Panneau sandwich',
+    bois: 'Bardage bois',
+    fibrociment: 'Fibro-ciment'
+  };
+  const murLabels = {
+    pignon_g: 'Pignon gauche',
+    pignon_d: 'Pignon droit',
+    lp_sud: 'Long pan Sud',
+    lp_nord: 'Long pan Nord'
+  };
+
+  const longueurTotale = (c.nbTravees * c.longTravee).toFixed(1);
+
+  let lines = [];
+  lines.push('=== DEMANDE DE DEVIS — SIMULATEUR 3D ===');
+  lines.push('');
+  lines.push('TYPE DE BÂTIMENT');
+  lines.push('  Toiture : ' + (typeLabels[c.typeBat] || c.typeBat));
+  if (c.typeBat === 'double_pente_desaxe') {
+    lines.push('  Largeur gauche : ' + c.desaxeG + ' m  |  Largeur droite : ' + c.desaxeD + ' m');
+  }
+  if (c.typeBat === 'mono_pente') {
+    lines.push('  Côté haut : ' + c.monoSens);
+  }
+
+  lines.push('');
+  lines.push('DIMENSIONS');
+  lines.push('  Portée : ' + c.portee + ' m');
+  lines.push('  Longueur : ' + longueurTotale + ' m  (' + c.nbTravees + ' travées × ' + c.longTravee + ' m)');
+  lines.push('  Hauteur poteaux : ' + c.hauteurPoteau + ' m');
+  lines.push('  Pente : ' + c.pente + ' %');
+
+  lines.push('');
+  lines.push('COUVERTURE');
+  lines.push('  Type : ' + (couvLabels[c.typeCouverture] || c.typeCouverture));
+  if (c.typeCouverture.startsWith('bac_acier')) {
+    lines.push('  Couleur : ' + c.ralCouverture);
+  }
+
+  lines.push('');
+  lines.push('BARDAGE');
+  lines.push('  Type : ' + (bardLabels[c.typeBardage] || c.typeBardage));
+  if (['nergal','bac_acier','sandwich'].includes(c.typeBardage)) {
+    lines.push('  Couleur : ' + c.ralBardage);
+  }
+  const facBard = [c.bardSud && 'Long pan Sud', c.bardNord && 'Long pan Nord', c.bardPigG && 'Pignon gauche', c.bardPigD && 'Pignon droit'].filter(Boolean);
+  lines.push('  Faces bardées : ' + (facBard.length ? facBard.join(', ') : 'Aucune'));
+
+  lines.push('');
+  lines.push('PLAQUES BÉTON');
+  lines.push('  Hauteur : ' + c.plaquesHauteur + ' m — ' + (c.plaquesPos === 'devant' ? 'Devant les poteaux' : 'Dans les poteaux'));
+  const facPlaq = [c.plaqSud && 'Long pan Sud', c.plaqNord && 'Long pan Nord', c.plaqPigG && 'Pignon gauche', c.plaqPigD && 'Pignon droit'].filter(Boolean);
+  lines.push('  Faces : ' + (facPlaq.length ? facPlaq.join(', ') : 'Aucune'));
+
+  if (c.auventG || c.auventD) {
+    lines.push('');
+    lines.push('AUVENTS');
+    if (c.auventG) lines.push('  Gauche : profondeur ' + c.auventGProf + ' m, ' + c.auventGNbTrav + ' travées, pente ' + c.auventGPente + ' %');
+    if (c.auventD) lines.push('  Droit : profondeur ' + c.auventDProf + ' m, ' + c.auventDNbTrav + ' travées, pente ' + c.auventDPente + ' %');
+  }
+
+  if (c.appentisG || c.appentisD) {
+    lines.push('');
+    lines.push('APPENTIS');
+    if (c.appentisG) lines.push('  Gauche : largeur ' + c.appGLarg + ' m, haut. poteau ext. ' + c.appGHpot + ' m, ' + c.appGNbTrav + ' travées, pente ' + c.appGPente + ' %');
+    if (c.appentisD) lines.push('  Droit : largeur ' + c.appDLarg + ' m, haut. poteau ext. ' + c.appDHpot + ' m, ' + c.appDNbTrav + ' travées, pente ' + c.appDPente + ' %');
+  }
+
+  if (c.portes && c.portes.length) {
+    lines.push('');
+    lines.push('PORTES (' + c.portes.length + ')');
+    c.portes.forEach((p, i) => {
+      const loc = murLabels[p.mur] || p.mur;
+      lines.push('  Porte ' + (i+1) + ' — ' + loc + ' : ' + p.largeur.toFixed(2) + ' m × ' + p.hauteur.toFixed(2) + ' m');
+    });
+  } else {
+    lines.push('');
+    lines.push('PORTES : Aucune');
+  }
+
+  lines.push('');
+  lines.push('EMPANNAGE');
+  lines.push('  Pannes intermédiaires/versant : ' + c.nbPannesInter);
+  lines.push('');
+  lines.push('---');
+  lines.push('Merci de me contacter pour obtenir un devis détaillé.');
+
+  const texte = lines.join('\n');
+
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: 'devis-simulateur', texte: texte }, '*');
+  } else {
+    // Fallback si ouvert directement (hors iframe)
+    alert('Copiez ces informations et envoyez-les via l\'onglet Contact :\n\n' + texte);
+  }
+}
 </script>
 </body>
 </html>
