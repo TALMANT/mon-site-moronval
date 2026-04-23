@@ -3,50 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulateur Bâtiment Métal — Moronval Constructions</title>
+<title>Simulateur Bâtiment 3D — Moronval Constructions</title>
 <style>
 :root {
   --primary: #1a1a1a; --secondary: #555; --accent: #185FA5; --bg: #f5f4ed;
-  --bg2: #fff; --border: #ddd; --red: #E24B4A; --green: #97C459;
-  --brown: #BA7517; --steel: #888780; --blue: #3B8BD4; --door: #1D9E75;
-  --appentis: #9B59B6; --auvent: #E67E22;
+  --bg2: #fff; --border: #ddd; --appentis: #9B59B6; --auvent: #E67E22;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(--primary); display: flex; height: 100vh; overflow: hidden; }
-.sidebar { width: 370px; min-width: 370px; background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-.sidebar h1 { font-size: 16px; color: var(--accent); margin-bottom: 4px; }
-.sidebar h2 { font-size: 13px; color: var(--primary); background: #f0f0f0; padding: 6px 10px; border-radius: 4px; margin-top: 2px; cursor: pointer; user-select: none; }
+.sidebar { width: 320px; min-width: 320px; background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.sidebar h1 { font-size: 15px; color: var(--accent); margin-bottom: 2px; }
+.sidebar-sub { font-size: 11px; color: var(--secondary); margin-bottom: 4px; }
+.sidebar h2 { font-size: 12px; color: var(--primary); background: #f0f0f0; padding: 5px 8px; border-radius: 4px; margin-top: 2px; cursor: pointer; user-select: none; }
 .sidebar h2::before { content: '▼ '; font-size: 10px; }
 .sidebar h2.collapsed::before { content: '▶ '; }
-.section { display: flex; flex-direction: column; gap: 5px; padding: 4px 0; }
+.section { display: flex; flex-direction: column; gap: 4px; padding: 3px 0; }
 .section.hidden { display: none; }
-.row { display: flex; align-items: center; gap: 8px; }
-.row label { font-size: 12px; color: var(--secondary); min-width: 140px; flex-shrink: 0; }
-.row input[type=number], .row select, .row input[type=text] { flex: 1; padding: 4px 6px; border: 1px solid var(--border); border-radius: 3px; font-size: 12px; }
-.row input[type=number] { width: 70px; }
+.row { display: flex; align-items: center; gap: 6px; }
+.row label { font-size: 12px; color: var(--secondary); min-width: 130px; flex-shrink: 0; }
+.row input[type=number], .row select, .row input[type=text] { flex: 1; padding: 3px 5px; border: 1px solid var(--border); border-radius: 3px; font-size: 12px; }
+.row input[type=number] { width: 65px; }
 .row input[type=checkbox] { margin: 0; }
-.sub-options { padding-left: 20px; border-left: 2px solid #e0e0d8; margin: 2px 0; display: flex; flex-direction: column; gap: 5px; }
-.croisillon-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; }
-.croisillon-grid label { font-size: 10px; text-align: center; cursor: pointer; }
-.croisillon-grid input { margin: 0 auto; display: block; }
-.porte-config { background: #f9f9f5; border: 1px solid #e0e0d8; border-radius: 4px; padding: 8px; margin-bottom: 4px; }
-.porte-config .porte-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.sub-options { padding-left: 18px; border-left: 2px solid #e0e0d8; margin: 2px 0; display: flex; flex-direction: column; gap: 4px; }
+.porte-config { background: #f9f9f5; border: 1px solid #e0e0d8; border-radius: 4px; padding: 7px; margin-bottom: 3px; }
+.porte-config .porte-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
 .porte-config .porte-header span { font-size: 12px; font-weight: 600; }
 .btn-small { font-size: 11px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 3px; cursor: pointer; background: #fff; }
 .btn-small:hover { background: #f0f0f0; }
-.btn-small.danger { color: var(--red); border-color: var(--red); }
-.btn-add { font-size: 12px; padding: 4px 12px; border: 1px solid var(--accent); color: var(--accent); background: #fff; border-radius: 3px; cursor: pointer; }
+.btn-small.danger { color: #E24B4A; border-color: #E24B4A; }
+.btn-add { font-size: 12px; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent); background: #fff; border-radius: 3px; cursor: pointer; margin-top: 2px; }
 .btn-add:hover { background: #f0f7ff; }
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.tabs { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); }
-.tabs button { padding: 10px 24px; border: none; background: none; cursor: pointer; font-size: 13px; color: var(--secondary); border-bottom: 2px solid transparent; }
-.tabs button.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-.tab-content { flex: 1; overflow: auto; background: var(--bg); display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
-.tab-content .plan-container { background: var(--bg2); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 16px; }
-.tab-pane { display: none; width: 100%; height: 100%; }
-.tab-pane.active { display: block; }
-#tab-3d { position: relative; }
-#tab-3d.active { display: flex; align-items: stretch; justify-content: center; }
+.btn-devis { width: 100%; padding: 10px 14px; background: #b5602a; color: #fff; border: none; border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; letter-spacing: 0.3px; transition: background 0.15s; }
+.btn-devis:hover { background: #9a4f1e; }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
 #canvas3d { width: 100%; height: 100%; display: block; cursor: grab; }
 #canvas3d:active { cursor: grabbing; }
 .three-info { position: absolute; bottom: 10px; left: 10px; font-size: 11px; color: #888; background: rgba(255,255,255,0.85); padding: 4px 10px; border-radius: 4px; pointer-events: none; }
@@ -55,38 +44,13 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
 .view3d-toolbar button.active3d { background: var(--accent); color: #fff; }
 .view3d-toolbar button:not(.active3d) { background: rgba(255,255,255,0.9); color: #555; }
 .view3d-toolbar button:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-.export-bar { display: flex; gap: 8px; padding: 10px 16px; background: var(--bg2); border-top: 1px solid var(--border); }
-.export-bar button { padding: 6px 16px; border: 1px solid var(--accent); color: var(--accent); background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; }
-.export-bar button:hover { background: #f0f7ff; }
-.export-bar button.primary { background: var(--accent); color: #fff; }
-.export-bar button.primary:hover { background: #14508a; }
-.project-btns { display: flex; gap: 6px; margin-bottom: 6px; }
-.project-btns button { flex: 1; padding: 6px 8px; border: 1px solid var(--accent); border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 500; transition: all 0.15s; }
-.project-btns .btn-save { background: var(--accent); color: #fff; }
-.project-btns .btn-save:hover { background: #14508a; }
-.project-btns .btn-load { background: #fff; color: var(--accent); }
-.project-btns .btn-load:hover { background: #f0f7ff; }
-.project-btns .btn-new { background: #fff; color: #888; border-color: #ccc; }
-.project-btns .btn-new:hover { background: #f5f5f5; }
-.info-devis { font-size: 11px; color: var(--secondary); background: #f9f9f5; padding: 8px; border-radius: 4px; border: 1px solid #e8e8e0; }
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-  <h1>Simulateur Bâtiment Métal</h1>
-  <div class="project-btns">
-    <button class="btn-save" onclick="saveProject()" title="Sauvegarder le projet en fichier JSON">💾 Sauvegarder</button>
-    <button class="btn-load" onclick="document.getElementById('loadFileInput').click()" title="Charger un projet depuis un fichier JSON">📂 Charger</button>
-    <button class="btn-new" onclick="resetProject()" title="Nouveau projet vide">🗋 Nouveau</button>
-    <input type="file" id="loadFileInput" accept=".json" style="display:none" onchange="loadProject(event)">
-  </div>
-  <div class="info-devis">
-    <div class="row"><label>N° devis</label><input type="text" id="numDevis" value="" onchange="update()"></div>
-    <div class="row" style="margin-top:4px;"><label>Client</label><input type="text" id="nomClient" value="" onchange="update()"></div>
-    <div class="row" style="margin-top:4px;"><label>Chantier</label><input type="text" id="nomChantier" value="" onchange="update()"></div>
-    <div style="margin-top:4px;font-size:11px;color:var(--secondary);">Moronval Constructions — Romain Talmant</div>
-  </div>
+  <h1>Simulateur Bâtiment 3D</h1>
+  <div class="sidebar-sub">Moronval Constructions</div>
 
   <!-- TYPE DE BÂTIMENT -->
   <h2 onclick="toggleSection(this)">Type de bâtiment</h2>
@@ -94,6 +58,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
     <div class="row"><label>Toiture principale</label>
       <select id="typeBat" onchange="onTypeBatChange();update()">
         <option value="double_pente">Double pente</option>
+        <option value="double_pente_desaxe">Double pente désaxé</option>
         <option value="mono_pente">Mono pente</option>
       </select>
     </div>
@@ -103,6 +68,30 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
         <option value="droit">Droit</option>
       </select>
     </div>
+    <div id="row-desaxe" style="display:none;">
+      <div class="row"><label>Largeur gauche (m)</label><input type="number" id="desaxeG" value="8" step="0.1" min="2" onchange="onDesaxeChange();update()"></div>
+      <div class="row"><label>Largeur droite (m)</label><input type="number" id="desaxeD" value="12" step="0.1" min="2" onchange="onDesaxeChange();update()"></div>
+    </div>
+  </div>
+
+  <!-- DIMENSIONS -->
+  <h2 onclick="toggleSection(this)">Dimensions générales</h2>
+  <div class="section" id="sec-dim">
+    <div class="row"><label>Largeur (ext. poteau)</label><input type="number" id="portee" value="20" step="0.1" min="5" onchange="update()"></div>
+    <div class="row"><label>Nb travées</label><input type="number" id="nbTravees" value="10" min="2" max="30" onchange="update()"></div>
+    <div class="row"><label>Long. travée (m)</label>
+      <select id="longTravee" onchange="update()">
+        <option value="1">1 m</option>
+        <option value="2">2 m</option>
+        <option value="3">3 m</option>
+        <option value="4">4 m</option>
+        <option value="5" selected>5 m</option>
+        <option value="6">6 m</option>
+        <option value="7">7 m</option>
+      </select>
+    </div>
+    <div class="row"><label>Pente (%)</label><input type="number" id="pente" value="20" min="5" max="50" onchange="update()"></div>
+    <div class="row"><label>Hauteur poteaux (m)</label><input type="number" id="hauteurPoteau" value="6" step="0.1" min="3" onchange="update()"></div>
   </div>
 
   <!-- AUVENT -->
@@ -111,18 +100,14 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
     <div class="row"><label>Auvent gauche</label><input type="checkbox" id="auventG" onchange="toggleAuvent();update()"></div>
     <div class="sub-options" id="sub-auvG" style="display:none;">
       <div class="row"><label>Profondeur (m)</label><input type="number" id="auventGProf" value="3" step="0.1" min="1" max="10" onchange="update()"></div>
-      <div class="row"><label>Nb travées auvent</label><input type="number" id="auventGNbTrav" value="12" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Nb travées auvent</label><input type="number" id="auventGNbTrav" value="10" min="1" max="30" onchange="update()"></div>
       <div class="row"><label>Pente auvent (%)</label><input type="number" id="auventGPente" value="15" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="auventGNbPannes" value="2" min="0" max="10" onchange="update()"></div>
-      <div class="row"><label>Gousset jarret (m)</label><input type="number" id="auventGGousset" value="1.2" step="0.1" min="0.3" max="3" onchange="update()"></div>
     </div>
     <div class="row"><label>Auvent droit</label><input type="checkbox" id="auventD" onchange="toggleAuvent();update()"></div>
     <div class="sub-options" id="sub-auvD" style="display:none;">
       <div class="row"><label>Profondeur (m)</label><input type="number" id="auventDProf" value="3" step="0.1" min="1" max="10" onchange="update()"></div>
-      <div class="row"><label>Nb travées auvent</label><input type="number" id="auventDNbTrav" value="12" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Nb travées auvent</label><input type="number" id="auventDNbTrav" value="10" min="1" max="30" onchange="update()"></div>
       <div class="row"><label>Pente auvent (%)</label><input type="number" id="auventDPente" value="15" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="auventDNbPannes" value="2" min="0" max="10" onchange="update()"></div>
-      <div class="row"><label>Gousset jarret (m)</label><input type="number" id="auventDGousset" value="1.2" step="0.1" min="0.3" max="3" onchange="update()"></div>
     </div>
   </div>
 
@@ -133,116 +118,37 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
     <div class="sub-options" id="sub-appG" style="display:none;">
       <div class="row"><label>Largeur (m)</label><input type="number" id="appGLarg" value="6" step="0.1" min="2" max="15" onchange="update()"></div>
       <div class="row"><label>Haut. poteau ext. (m)</label><input type="number" id="appGHpot" value="4" step="0.1" min="2" max="10" onchange="update()"></div>
-      <div class="row"><label>Nb travées appentis</label><input type="number" id="appGNbTrav" value="12" min="1" max="30" onchange="update()"></div>
-      <div class="row"><label>Long. travée app. (m)</label><input type="number" id="appGLongTrav" value="5" step="0.1" min="2" onchange="update()"></div>
+      <div class="row"><label>Nb travées appentis</label><input type="number" id="appGNbTrav" value="10" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Long. travée app. (m)</label>
+        <select id="appGLongTrav" onchange="update()">
+          <option value="1">1 m</option>
+          <option value="2">2 m</option>
+          <option value="3">3 m</option>
+          <option value="4">4 m</option>
+          <option value="5" selected>5 m</option>
+          <option value="6">6 m</option>
+          <option value="7">7 m</option>
+        </select>
+      </div>
       <div class="row"><label>Pente appentis (%)</label><input type="number" id="appGPente" value="20" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="appGNbPannes" value="4" min="0" max="15" onchange="update()"></div>
-      <div class="row"><label>Gousset jarret (m)</label><input type="number" id="appGGousset" value="1.5" step="0.1" min="0.3" max="4" onchange="update()"></div>
     </div>
     <div class="row"><label>Appentis droit</label><input type="checkbox" id="appentisD" onchange="toggleAppentis();update()"></div>
     <div class="sub-options" id="sub-appD" style="display:none;">
       <div class="row"><label>Largeur (m)</label><input type="number" id="appDLarg" value="6" step="0.1" min="2" max="15" onchange="update()"></div>
       <div class="row"><label>Haut. poteau ext. (m)</label><input type="number" id="appDHpot" value="4" step="0.1" min="2" max="10" onchange="update()"></div>
-      <div class="row"><label>Nb travées appentis</label><input type="number" id="appDNbTrav" value="12" min="1" max="30" onchange="update()"></div>
-      <div class="row"><label>Long. travée app. (m)</label><input type="number" id="appDLongTrav" value="5" step="0.1" min="2" onchange="update()"></div>
+      <div class="row"><label>Nb travées appentis</label><input type="number" id="appDNbTrav" value="10" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Long. travée app. (m)</label>
+        <select id="appDLongTrav" onchange="update()">
+          <option value="1">1 m</option>
+          <option value="2">2 m</option>
+          <option value="3">3 m</option>
+          <option value="4">4 m</option>
+          <option value="5" selected>5 m</option>
+          <option value="6">6 m</option>
+          <option value="7">7 m</option>
+        </select>
+      </div>
       <div class="row"><label>Pente appentis (%)</label><input type="number" id="appDPente" value="20" min="3" max="50" onchange="update()"></div>
-      <div class="row"><label>Pannes interméd.</label><input type="number" id="appDNbPannes" value="4" min="0" max="15" onchange="update()"></div>
-      <div class="row"><label>Gousset jarret (m)</label><input type="number" id="appDGousset" value="1.5" step="0.1" min="0.3" max="4" onchange="update()"></div>
-    </div>
-  </div>
-
-  <!-- DIMENSIONS -->
-  <h2 onclick="toggleSection(this)">Dimensions générales</h2>
-  <div class="section" id="sec-dim">
-    <div class="row"><label>Portée ext. poteaux (m)</label><input type="number" id="portee" value="20" step="0.1" min="5" onchange="update()"></div>
-    <div class="row"><label>Nb travées</label><input type="number" id="nbTravees" value="10" min="2" max="30" onchange="buildCroisillonGrid();update()"></div>
-    <div class="row"><label>Long. travée (m)</label><input type="number" id="longTravee" value="5" step="0.1" min="2" onchange="update()"></div>
-    <div class="row"><label>Pente (%)</label><input type="number" id="pente" value="20" min="5" max="50" onchange="update()"></div>
-    <div class="row"><label>Hauteur poteaux (m)</label><input type="number" id="hauteurPoteau" value="6" step="0.1" min="3" onchange="update()"></div>
-  </div>
-
-
-  <!-- PROFILÉS -->
-  <h2 onclick="toggleSection(this)">Profilés</h2>
-  <div class="section" id="sec-profil">
-    <div class="row"><label>Poteaux</label>
-      <select id="profilPoteaux" onchange="update()">
-        <optgroup label="IPE">
-          <option value="IPE200">IPE 200</option>
-          <option value="IPE220">IPE 220</option>
-          <option value="IPE240">IPE 240</option>
-          <option value="IPE270">IPE 270</option>
-          <option value="IPE300" selected>IPE 300</option>
-          <option value="IPE330">IPE 330</option>
-          <option value="IPE360">IPE 360</option>
-          <option value="IPE400">IPE 400</option>
-          <option value="IPE450">IPE 450</option>
-          <option value="IPE500">IPE 500</option>
-          <option value="IPE550">IPE 550</option>
-          <option value="IPE600">IPE 600</option>
-        </optgroup>
-        <optgroup label="HEA">
-          <option value="HEA200">HEA 200</option>
-          <option value="HEA220">HEA 220</option>
-          <option value="HEA240">HEA 240</option>
-          <option value="HEA260">HEA 260</option>
-          <option value="HEA280">HEA 280</option>
-          <option value="HEA300">HEA 300</option>
-          <option value="HEA320">HEA 320</option>
-          <option value="HEA340">HEA 340</option>
-          <option value="HEA360">HEA 360</option>
-          <option value="HEA400">HEA 400</option>
-        </optgroup>
-      </select>
-    </div>
-    <div class="row"><label>Arbalétriers</label>
-      <select id="profilArba" onchange="update()">
-        <optgroup label="IPE">
-          <option value="IPE200">IPE 200</option>
-          <option value="IPE220">IPE 220</option>
-          <option value="IPE240">IPE 240</option>
-          <option value="IPE270">IPE 270</option>
-          <option value="IPE300">IPE 300</option>
-          <option value="IPE330" selected>IPE 330</option>
-          <option value="IPE360">IPE 360</option>
-          <option value="IPE400">IPE 400</option>
-          <option value="IPE450">IPE 450</option>
-          <option value="IPE500">IPE 500</option>
-        </optgroup>
-        <optgroup label="HEA">
-          <option value="HEA200">HEA 200</option>
-          <option value="HEA220">HEA 220</option>
-          <option value="HEA240">HEA 240</option>
-          <option value="HEA260">HEA 260</option>
-          <option value="HEA280">HEA 280</option>
-          <option value="HEA300">HEA 300</option>
-        </optgroup>
-      </select>
-    </div>
-  </div>
-
-  <!-- EMPANNAGE -->
-  <h2 onclick="toggleSection(this)">Empannage</h2>
-  <div class="section" id="sec-emp">
-    <div class="row"><label>Pannes interméd./versant</label><input type="number" id="nbPannesInter" value="6" min="1" max="15" onchange="update()"></div>
-    <div class="row"><label>Dist. faîtière–1re panne (mm)</label><input type="number" id="distFaitiere" value="160" min="50" max="500" step="10" onchange="update()"></div>
-  </div>
-
-  <!-- GOUSSETS -->
-  <h2 onclick="toggleSection(this)">Goussets</h2>
-  <div class="section" id="sec-gou">
-    <div class="row"><label>Gousset bas / jarret (m)</label><input type="number" id="goussetBas" value="2" step="0.1" min="0.5" max="5" onchange="update()"></div>
-    <div class="row"><label>Gousset haut / faîtage (m)</label><input type="number" id="goussetHaut" value="1" step="0.1" min="0.3" max="3" onchange="update()"></div>
-  </div>
-
-  <!-- CHENEAUX -->
-  <h2 onclick="toggleSection(this)">Chéneaux galva</h2>
-  <div class="section" id="sec-chen">
-    <div class="row"><label>Position</label>
-      <select id="cheneauPos" onchange="update()">
-        <option value="exterieur">Extérieur poteau</option>
-        <option value="sur">Sur poteau</option>
-      </select>
     </div>
   </div>
 
@@ -255,18 +161,16 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
         <option value="dans">Dans les poteaux</option>
       </select>
     </div>
-    <div class="row"><label>Hauteur (m)</label><input type="number" id="plaquesHauteur" value="2.4" step="0.1" min="0.5" max="5" onchange="update()"></div>
+    <div class="row"><label>Hauteur (m)</label>
+      <select id="plaquesHauteur" onchange="update()">
+        <option value="1.2">1.20 m</option>
+        <option value="2.4" selected>2.40 m</option>
+      </select>
+    </div>
     <div class="row"><label>Long pan Sud</label><input type="checkbox" id="plaqSud" onchange="update()"></div>
     <div class="row"><label>Long pan Nord</label><input type="checkbox" id="plaqNord" onchange="update()"></div>
     <div class="row"><label>Pignon gauche</label><input type="checkbox" id="plaqPigG" onchange="update()"></div>
     <div class="row"><label>Pignon droit</label><input type="checkbox" id="plaqPigD" onchange="update()"></div>
-  </div>
-
-  <!-- CROISILLONS -->
-  <h2 onclick="toggleSection(this)">Croisillons</h2>
-  <div class="section" id="sec-crois">
-    <div style="font-size:11px;color:var(--secondary);margin-bottom:4px;">Cochez les travées avec croisillons :</div>
-    <div class="croisillon-grid" id="croisGrid"></div>
   </div>
 
   <!-- PORTES -->
@@ -308,7 +212,6 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
         <option value="bac_acier">Bac acier nervuré</option>
         <option value="sandwich">Panneau sandwich</option>
         <option value="bois">Bardage bois</option>
-        <option value="fibrociment">Fibro-ciment</option>
       </select>
     </div>
     <div class="row" id="row-ralBard"><label>Couleur RAL</label>
@@ -325,127 +228,89 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
     <div class="row"><label>Pignon gauche</label><input type="checkbox" id="bardPigG" checked onchange="update()"></div>
     <div class="row"><label>Pignon droit</label><input type="checkbox" id="bardPigD" checked onchange="update()"></div>
   </div>
+
+  <button class="btn-devis" onclick="demanderDevis()">&#128196; Demander un devis personnalisé</button>
 </div>
 
 <div class="main">
-  <div class="tabs">
-    <button class="active" onclick="switchTab('coupe', this)">Plan en coupe</button>
-    <button onclick="switchTab('dessus', this)">Plan de dessus</button>
-    <button onclick="switchTab('3d', this)">Vue 3D</button>
+  <canvas id="canvas3d"></canvas>
+  <div class="view3d-toolbar">
+    <button class="active3d" onclick="toggle3DLayer('structure',this)">Charpente</button>
+    <button class="active3d" onclick="toggle3DLayer('roof',this)">Toiture</button>
+    <button class="active3d" onclick="toggle3DLayer('bardage',this)">Bardage</button>
+    <button class="active3d" onclick="toggle3DLayer('secondary',this)">Secondaire</button>
   </div>
-  <div class="tab-content">
-    <div class="tab-pane active" id="tab-coupe">
-      <div class="plan-container" id="coupe-container"></div>
-    </div>
-    <div class="tab-pane" id="tab-dessus">
-      <div class="plan-container" id="dessus-container"></div>
-    </div>
-    <div class="tab-pane" id="tab-3d">
-      <canvas id="canvas3d"></canvas>
-      <div class="view3d-toolbar">
-        <button class="active3d" onclick="toggle3DLayer('structure',this)">Charpente</button>
-        <button class="active3d" onclick="toggle3DLayer('roof',this)">Toiture</button>
-        <button class="active3d" onclick="toggle3DLayer('bardage',this)">Bardage</button>
-        <button class="active3d" onclick="toggle3DLayer('secondary',this)">Secondaire</button>
-      </div>
-      <div class="three-info">Clic gauche: rotation — Molette: zoom — Clic droit: déplacer</div>
-    </div>
-  </div>
-  <div class="export-bar">
-    <button onclick="exportSVG('coupe')">Exporter coupe SVG</button>
-    <button onclick="exportSVG('dessus')">Exporter dessus SVG</button>
-    <button onclick="exportPDF('coupe')" class="primary">Coupe → PDF</button>
-    <button onclick="exportPDF('dessus')" class="primary">Dessus → PDF</button>
-  </div>
+  <div class="three-info">Clic gauche : rotation — Molette : zoom — Clic droit : déplacer</div>
 </div>
 
 <script>
-// ========== CONFIG ==========
-// ========== PROFILE DATABASE ==========
+// ========== PROFIL DATABASE (fixe) ==========
 const PROFILES = {
-  IPE200:{h:.200,b:.100,tw:.006,tf:.009},
-  IPE220:{h:.220,b:.110,tw:.006,tf:.009},
-  IPE240:{h:.240,b:.120,tw:.006,tf:.010},
-  IPE270:{h:.270,b:.135,tw:.007,tf:.010},
   IPE300:{h:.300,b:.150,tw:.007,tf:.011},
   IPE330:{h:.330,b:.160,tw:.008,tf:.012},
-  IPE360:{h:.360,b:.170,tw:.008,tf:.013},
-  IPE400:{h:.400,b:.180,tw:.009,tf:.014},
-  IPE450:{h:.450,b:.190,tw:.009,tf:.015},
-  IPE500:{h:.500,b:.200,tw:.010,tf:.016},
-  IPE550:{h:.550,b:.210,tw:.011,tf:.017},
-  IPE600:{h:.600,b:.220,tw:.012,tf:.019},
-  HEA200:{h:.190,b:.200,tw:.007,tf:.010},
-  HEA220:{h:.210,b:.220,tw:.007,tf:.011},
-  HEA240:{h:.230,b:.240,tw:.008,tf:.012},
-  HEA260:{h:.250,b:.260,tw:.008,tf:.013},
-  HEA280:{h:.270,b:.280,tw:.008,tf:.013},
-  HEA300:{h:.290,b:.300,tw:.009,tf:.014},
-  HEA320:{h:.310,b:.300,tw:.009,tf:.016},
-  HEA340:{h:.330,b:.300,tw:.010,tf:.017},
-  HEA360:{h:.350,b:.300,tw:.010,tf:.018},
-  HEA400:{h:.390,b:.300,tw:.011,tf:.019},
 };
 function getProfile(id) { return PROFILES[id] || PROFILES.IPE300; }
-function getProfileLabel(id) { return id ? id.replace(/([A-Z]+)(\d+)/, '$1 $2') : ''; }
+
+const RAL_COLORS = {
+  RAL5008: { hex3d: 0x26364A }, RAL7016: { hex3d: 0x383E42 },
+  RAL8012: { hex3d: 0x66332B }, RAL9002: { hex3d: 0xD7D5CB },
+  RAL1015: { hex3d: 0xE6D2B5 },
+};
+function getRalHex3d(id) { return (RAL_COLORS[id] || RAL_COLORS.RAL7016).hex3d; }
 
 let portes = [];
 
 function getConfig() {
   return {
-    numDevis: document.getElementById('numDevis').value,
-    nomClient: document.getElementById('nomClient').value,
-    nomChantier: document.getElementById('nomChantier').value,
     typeBat: document.getElementById('typeBat').value,
+    desaxeG: parseFloat(document.getElementById('desaxeG').value),
+    desaxeD: parseFloat(document.getElementById('desaxeD').value),
     monoSens: document.getElementById('monoSens').value,
-    // Auvent
     auventG: document.getElementById('auventG').checked,
     auventGProf: parseFloat(document.getElementById('auventGProf').value),
     auventGNbTrav: parseInt(document.getElementById('auventGNbTrav').value),
     auventGPente: parseFloat(document.getElementById('auventGPente').value),
-    auventGNbPannes: parseInt(document.getElementById('auventGNbPannes').value),
-    auventGGousset: parseFloat(document.getElementById('auventGGousset').value),
+    auventGNbPannes: 2,
+    auventGGousset: 1.2,
     auventD: document.getElementById('auventD').checked,
     auventDProf: parseFloat(document.getElementById('auventDProf').value),
     auventDNbTrav: parseInt(document.getElementById('auventDNbTrav').value),
     auventDPente: parseFloat(document.getElementById('auventDPente').value),
-    auventDNbPannes: parseInt(document.getElementById('auventDNbPannes').value),
-    auventDGousset: parseFloat(document.getElementById('auventDGousset').value),
-    // Appentis
+    auventDNbPannes: 2,
+    auventDGousset: 1.2,
     appentisG: document.getElementById('appentisG').checked,
     appGLarg: parseFloat(document.getElementById('appGLarg').value),
     appGHpot: parseFloat(document.getElementById('appGHpot').value),
     appGNbTrav: parseInt(document.getElementById('appGNbTrav').value),
     appGLongTrav: parseFloat(document.getElementById('appGLongTrav').value),
     appGPente: parseFloat(document.getElementById('appGPente').value),
-    appGNbPannes: parseInt(document.getElementById('appGNbPannes').value),
-    appGGousset: parseFloat(document.getElementById('appGGousset').value),
+    appGNbPannes: 4,
+    appGGousset: 1.5,
     appentisD: document.getElementById('appentisD').checked,
     appDLarg: parseFloat(document.getElementById('appDLarg').value),
     appDHpot: parseFloat(document.getElementById('appDHpot').value),
     appDNbTrav: parseInt(document.getElementById('appDNbTrav').value),
     appDLongTrav: parseFloat(document.getElementById('appDLongTrav').value),
     appDPente: parseFloat(document.getElementById('appDPente').value),
-    appDNbPannes: parseInt(document.getElementById('appDNbPannes').value),
-    appDGousset: parseFloat(document.getElementById('appDGousset').value),
-    // Dimensions
+    appDNbPannes: 4,
+    appDGousset: 1.5,
     portee: parseFloat(document.getElementById('portee').value),
     nbTravees: parseInt(document.getElementById('nbTravees').value),
     longTravee: parseFloat(document.getElementById('longTravee').value),
     pente: parseFloat(document.getElementById('pente').value),
     hauteurPoteau: parseFloat(document.getElementById('hauteurPoteau').value),
-    nbPannesInter: parseInt(document.getElementById('nbPannesInter').value),
-    distFaitiere: parseFloat(document.getElementById('distFaitiere').value) / 1000,
-    goussetBas: parseFloat(document.getElementById('goussetBas').value),
-    goussetHaut: parseFloat(document.getElementById('goussetHaut').value),
-    cheneauPos: document.getElementById('cheneauPos').value,
+    nbPannesInter: 6,
+    distFaitiere: 0.16,
+    goussetBas: 2,
+    goussetHaut: 1,
+    cheneauPos: 'exterieur',
     plaquesPos: document.getElementById('plaquesPos').value,
     plaquesHauteur: parseFloat(document.getElementById('plaquesHauteur').value),
     plaqSud: document.getElementById('plaqSud').checked,
     plaqNord: document.getElementById('plaqNord').checked,
     plaqPigG: document.getElementById('plaqPigG').checked,
     plaqPigD: document.getElementById('plaqPigD').checked,
-    croisillons: getCroisillons(),
+    croisillons: [],
     portes: portes,
     typeCouverture: document.getElementById('typeCouverture').value,
     typeBardage: document.getElementById('typeBardage').value,
@@ -453,21 +318,11 @@ function getConfig() {
     bardNord: document.getElementById('bardNord').checked,
     bardPigG: document.getElementById('bardPigG').checked,
     bardPigD: document.getElementById('bardPigD').checked,
-    profilPoteaux: document.getElementById('profilPoteaux').value,
-    profilArba: document.getElementById('profilArba').value,
+    profilPoteaux: 'IPE300',
+    profilArba: 'IPE330',
     ralCouverture: document.getElementById('ralCouverture').value,
     ralBardage: document.getElementById('ralBardage').value,
   };
-}
-
-function getCroisillons() {
-  const checked = [];
-  const nb = parseInt(document.getElementById('nbTravees').value);
-  for (let i = 1; i <= nb; i++) {
-    const cb = document.getElementById('crois_' + i);
-    if (cb && cb.checked) checked.push(i);
-  }
-  return checked;
 }
 
 // ========== SIDEBAR UI ==========
@@ -478,52 +333,67 @@ function toggleSection(h2) {
 }
 
 function onTypeBatChange() {
-  document.getElementById('row-monoSens').style.display = document.getElementById('typeBat').value === 'mono_pente' ? 'flex' : 'none';
+  const t = document.getElementById('typeBat').value;
+  document.getElementById('row-monoSens').style.display = t === 'mono_pente' ? 'flex' : 'none';
+  document.getElementById('row-desaxe').style.display = t === 'double_pente_desaxe' ? 'block' : 'none';
+  if (t === 'double_pente_desaxe') {
+    const g = parseFloat(document.getElementById('desaxeG').value) || 8;
+    const d = parseFloat(document.getElementById('desaxeD').value) || 12;
+    document.getElementById('portee').value = (g + d).toFixed(1);
+  }
+}
+function onDesaxeChange() {
+  const g = parseFloat(document.getElementById('desaxeG').value) || 8;
+  const d = parseFloat(document.getElementById('desaxeD').value) || 12;
+  document.getElementById('portee').value = (g + d).toFixed(1);
 }
 
 function toggleAuvent() {
-  document.getElementById('sub-auvG').style.display = document.getElementById('auventG').checked ? 'flex' : 'none';
-  document.getElementById('sub-auvD').style.display = document.getElementById('auventD').checked ? 'flex' : 'none';
+  const mainNb = parseInt(document.getElementById('nbTravees').value) || 10;
+  if (document.getElementById('auventG').checked) {
+    document.getElementById('sub-auvG').style.display = 'flex';
+    document.getElementById('auventGNbTrav').value = mainNb;
+  } else {
+    document.getElementById('sub-auvG').style.display = 'none';
+  }
+  if (document.getElementById('auventD').checked) {
+    document.getElementById('sub-auvD').style.display = 'flex';
+    document.getElementById('auventDNbTrav').value = mainNb;
+  } else {
+    document.getElementById('sub-auvD').style.display = 'none';
+  }
 }
-
-// RAL colors map
-const RAL_COLORS = {
-  RAL5008: { hex: '#26364A', hex3d: 0x26364A, label: 'Bleu gris' },
-  RAL7016: { hex: '#383E42', hex3d: 0x383E42, label: 'Gris anthracite' },
-  RAL8012: { hex: '#66332B', hex3d: 0x66332B, label: 'Brun rouge' },
-  RAL9002: { hex: '#D7D5CB', hex3d: 0xD7D5CB, label: 'Blanc gris' },
-  RAL1015: { hex: '#E6D2B5', hex3d: 0xE6D2B5, label: 'Ivoire clair' },
-};
-function getRalHex(id) { return (RAL_COLORS[id] || RAL_COLORS.RAL7016).hex; }
-function getRalHex3d(id) { return (RAL_COLORS[id] || RAL_COLORS.RAL7016).hex3d; }
-function getRalLabel(id) { return id ? id + ' ' + (RAL_COLORS[id] || {}).label : ''; }
+function toggleAppentis() {
+  const mainNb = parseInt(document.getElementById('nbTravees').value) || 10;
+  const mainLT = document.getElementById('longTravee').value;
+  function syncSelect(selId, val) {
+    const sel = document.getElementById(selId);
+    const opt = Array.from(sel.options).find(o => o.value === val);
+    if (opt) sel.value = val;
+  }
+  if (document.getElementById('appentisG').checked) {
+    document.getElementById('sub-appG').style.display = 'flex';
+    document.getElementById('appGNbTrav').value = mainNb;
+    syncSelect('appGLongTrav', mainLT);
+  } else {
+    document.getElementById('sub-appG').style.display = 'none';
+  }
+  if (document.getElementById('appentisD').checked) {
+    document.getElementById('sub-appD').style.display = 'flex';
+    document.getElementById('appDNbTrav').value = mainNb;
+    syncSelect('appDLongTrav', mainLT);
+  } else {
+    document.getElementById('sub-appD').style.display = 'none';
+  }
+}
 
 function toggleRalCouv() {
   const t = document.getElementById('typeCouverture').value;
-  const show = t.startsWith('bac_acier');
-  document.getElementById('row-ralCouv').style.display = show ? 'flex' : 'none';
+  document.getElementById('row-ralCouv').style.display = t.startsWith('bac_acier') ? 'flex' : 'none';
 }
 function toggleRalBard() {
   const t = document.getElementById('typeBardage').value;
-  const show = ['nergal','bac_acier','sandwich'].includes(t);
-  document.getElementById('row-ralBard').style.display = show ? 'flex' : 'none';
-}
-
-function toggleAppentis() {
-  document.getElementById('sub-appG').style.display = document.getElementById('appentisG').checked ? 'flex' : 'none';
-  document.getElementById('sub-appD').style.display = document.getElementById('appentisD').checked ? 'flex' : 'none';
-}
-
-function buildCroisillonGrid() {
-  const nb = parseInt(document.getElementById('nbTravees').value);
-  const grid = document.getElementById('croisGrid');
-  const old = getCroisillons();
-  grid.innerHTML = '';
-  for (let i = 1; i <= nb; i++) {
-    const lbl = document.createElement('label');
-    lbl.innerHTML = `T${i}<br><input type="checkbox" id="crois_${i}" ${(old.includes(i) || [1,7,12].includes(i) && old.length===0) ? 'checked' : ''} onchange="update()">`;
-    grid.appendChild(lbl);
-  }
+  document.getElementById('row-ralBard').style.display = ['nergal','bac_acier','sandwich'].includes(t) ? 'flex' : 'none';
 }
 
 function renderPortes() {
@@ -547,7 +417,7 @@ function renderPortes() {
       <div class="row"><label>Travée n°</label><select onchange="portes[${i}].travee=parseInt(this.value);portes[${i}].posY=(portes[${i}].travee-1)*${travW};update()">
         ${Array.from({length:cfg.nbTravees},(_,t)=>`<option value="${t+1}" ${p.travee===(t+1)?'selected':''}>Travée ${t+1}</option>`).join('')}
       </select></div>
-      <div class="row"><label>Largeur (m)</label><input type="number" value="${p.largeur}" step="0.5" min="1" max="${travW}" onchange="portes[${i}].largeur=Math.min(parseFloat(this.value),${travW});update()" title="Max = largeur travée (${travW}m)"></div>
+      <div class="row"><label>Largeur (m)</label><input type="number" value="${p.largeur}" step="0.5" min="1" max="${travW}" onchange="portes[${i}].largeur=Math.min(parseFloat(this.value),${travW});update()"></div>
       ` : `
       <div class="row"><label>Position Y (m)</label><input type="number" value="${p.posY}" step="0.1" min="0" onchange="portes[${i}].posY=parseFloat(this.value);update()"></div>
       <div class="row"><label>Largeur (m)</label><input type="number" value="${p.largeur}" step="0.5" min="1" max="12" onchange="portes[${i}].largeur=parseFloat(this.value);update()"></div>
@@ -568,781 +438,12 @@ function onPorteMurChange(i) {
 function addPorte() { portes.push({ mur: 'pignon_g', posY: 0, largeur: 4, hauteur: 4, travee: 1 }); renderPortes(); update(); }
 function removePorte(i) { portes.splice(i, 1); renderPortes(); update(); }
 
-function switchTab(name, btn) {
-  document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
+// ========== UPDATE ==========
+function update() {
+  if (window._scene3d) { update3D(); }
 }
 
-// ========== SVG HELPERS ==========
-function svgEl(tag, attrs) {
-  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-  return el;
-}
-function svgText(x, y, text, opts = {}) {
-  const t = svgEl('text', { x, y, 'text-anchor': opts.anchor || 'middle', fill: opts.fill || '#555',
-    'font-size': opts.size || '12', 'font-family': 'Segoe UI, Arial, sans-serif',
-    ...(opts.transform ? { transform: opts.transform } : {}),
-    ...(opts.weight ? { 'font-weight': opts.weight } : {}) });
-  t.textContent = text;
-  return t;
-}
-
-// ========== COULEURS ==========
-function getCouvertureColor(t, ral) {
-  if (t.startsWith('bac_acier') && ral) return getRalHex(ral);
-  return { bac_acier_ag:'#97C459', bac_acier_std:'#A8B4A0', bac_acier_isole:'#7BAE3B', fibrociment:'#B8B0A0', tuile:'#C47A4A' }[t] || '#97C459';
-}
-function getCouvertureColorDark(t, ral) {
-  if (t.startsWith('bac_acier') && ral) { const h = getRalHex(ral); return h; } // RAL is already dark enough
-  return { bac_acier_ag:'#63991A', bac_acier_std:'#6B7D60', bac_acier_isole:'#4D7B1F', fibrociment:'#8A8070', tuile:'#9A5A30' }[t] || '#63991A';
-}
-function getCouvertureLabel(t, ral) {
-  const base = { bac_acier_ag:'Bac acier antigouttes', bac_acier_std:'Bac acier standard', bac_acier_isole:'Bac acier isolé', fibrociment:'Fibro-ciment', tuile:'Tuile' }[t] || t;
-  if (t.startsWith('bac_acier') && ral) return base + ' ' + getRalLabel(ral);
-  return base;
-}
-function getBardageColor(t, ral) {
-  if (['nergal','bac_acier','sandwich'].includes(t) && ral) return getRalHex(ral);
-  return { nergal:'#3B8BD4', bac_acier:'#5A7DA8', sandwich:'#4A9EC4', bois:'#C49A5A', fibrociment:'#9A9080' }[t] || '#3B8BD4';
-}
-function getBardageLabel(t, ral) {
-  const base = { nergal:'bardage Nergal 1070', bac_acier:'bardage bac acier', sandwich:'panneau sandwich', bois:'bardage bois', fibrociment:'bardage fibro-ciment' }[t] || t;
-  if (['nergal','bac_acier','sandwich'].includes(t) && ral) return base + ' ' + getRalLabel(ral);
-  return base;
-}
-
-// ========== PLAN EN COUPE ==========
-function drawCoupe(cfg) {
-  const isMono = cfg.typeBat === 'mono_pente';
-
-  // Calcul des hauteurs réelles
-  const hLeft = cfg.hauteurPoteau;
-  let hRight, ridgeH;
-  if (isMono) {
-    const rise = cfg.portee * (cfg.pente / 100);
-    if (cfg.monoSens === 'gauche') { hRight = cfg.hauteurPoteau - rise; ridgeH = cfg.hauteurPoteau; }
-    else { hRight = cfg.hauteurPoteau; ridgeH = cfg.hauteurPoteau; }
-  } else {
-    hRight = cfg.hauteurPoteau;
-    ridgeH = cfg.hauteurPoteau + (cfg.portee / 2) * (cfg.pente / 100);
-  }
-  const totalH = isMono ? Math.max(hLeft, hRight) : ridgeH;
-
-  // Dimensions totales incluant auvent et appentis
-  let totalWidth = cfg.portee;
-  let extraLeft = 0, extraRight = 0;
-  if (cfg.auventG) extraLeft = Math.max(extraLeft, cfg.auventGProf);
-  if (cfg.auventD) extraRight = Math.max(extraRight, cfg.auventDProf);
-  if (cfg.appentisG) extraLeft = Math.max(extraLeft, cfg.appGLarg);
-  if (cfg.appentisD) extraRight = Math.max(extraRight, cfg.appDLarg);
-  totalWidth += extraLeft + extraRight;
-
-  const W = 850, H = 600;
-  const svg = svgEl('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}`, xmlns: 'http://www.w3.org/2000/svg' });
-  svg.style.background = '#fff';
-
-  const margin = { left: 80, right: 50, top: 75, bottom: 100 };
-  const drawW = W - margin.left - margin.right;
-  const drawH = H - margin.top - margin.bottom;
-  const scale = Math.min(drawW / totalWidth, drawH / totalH);
-
-  const solY = margin.top + totalH * scale;
-  const leftX = margin.left + extraLeft * scale;
-  const rightX = leftX + cfg.portee * scale;
-  // Profile-based dimensions
-  const potProf = getProfile(cfg.profilPoteaux);
-  const arbaProf = getProfile(cfg.profilArba);
-  const profScale = 56; // px per meter of profile dimension
-  const postW = Math.max(10, Math.round(potProf.h * profScale));
-  const postFlangeW = Math.max(postW + 6, Math.round(potProf.b * profScale));
-  const socleH = 18;
-  const covColor = getCouvertureColor(cfg.typeCouverture, cfg.ralCouverture);
-  const bardColor = getBardageColor(cfg.typeBardage, cfg.ralBardage);
-
-  const leftPostTopY = solY - hLeft * scale;
-  const rightPostTopY = solY - hRight * scale;
-  let ridgeX, ridgeYpos;
-  if (isMono) {
-    ridgeX = cfg.monoSens === 'gauche' ? leftX + postW : rightX - postW;
-    ridgeYpos = cfg.monoSens === 'gauche' ? leftPostTopY : rightPostTopY;
-  } else {
-    ridgeX = (leftX + rightX) / 2;
-    ridgeYpos = solY - ridgeH * scale;
-  }
-
-  // ===== SOL =====
-  const solLeft = margin.left - 20;
-  const solRight = margin.left + totalWidth * scale + 20;
-  svg.appendChild(svgEl('line', { x1: solLeft, y1: solY, x2: solRight, y2: solY, stroke: '#1a1a1a', 'stroke-width': '2.5' }));
-  for (let x = solLeft; x <= solRight; x += 30)
-    svg.appendChild(svgEl('line', { x1: x, y1: solY, x2: x - 10, y2: solY + 12, stroke: '#999', 'stroke-width': '1', opacity: '0.4' }));
-
-  // ===== BÂTIMENT PRINCIPAL =====
-  // Socles
-  svg.appendChild(svgEl('rect', { x: leftX - 6, y: solY - socleH, width: postW + 12, height: socleH, fill: '#B4B2A9', stroke: '#1a1a1a', 'stroke-width': '0.5', opacity: '0.7' }));
-  svg.appendChild(svgEl('rect', { x: rightX - postW - 6, y: solY - socleH, width: postW + 12, height: socleH, fill: '#B4B2A9', stroke: '#1a1a1a', 'stroke-width': '0.5', opacity: '0.7' }));
-
-  // Plaques béton
-  const plaqH = cfg.plaquesHauteur * scale, plaqW = 8;
-  if (cfg.plaqSud || cfg.plaqNord) {
-    const drawPlq = (px, side) => {
-      let plaqX = cfg.plaquesPos === 'devant' ? (side === 'left' ? px - plaqW - 2 : px + postW + 2) : (side === 'left' ? px : px + postW - plaqW);
-      svg.appendChild(svgEl('rect', { x: plaqX, y: solY - socleH - plaqH, width: plaqW, height: plaqH, fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '0.8', opacity: '0.8' }));
-    };
-    if (cfg.plaqSud) { drawPlq(leftX, 'left'); drawPlq(rightX - postW, 'right'); }
-  }
-
-  // Poteaux
-  const drawPoteau = (px, topY, h) => {
-    svg.appendChild(svgEl('rect', { x: px, y: topY, width: postW, height: h * scale, fill: '#888780', stroke: '#1a1a1a', 'stroke-width': '1.5' }));
-    svg.appendChild(svgEl('rect', { x: px - 7, y: topY, width: postFlangeW, height: 6, fill: '#888780', stroke: '#1a1a1a', 'stroke-width': '1' }));
-    svg.appendChild(svgEl('rect', { x: px - 7, y: solY - socleH, width: postFlangeW, height: 6, fill: '#888780', stroke: '#1a1a1a', 'stroke-width': '1' }));
-  };
-  drawPoteau(leftX, leftPostTopY, hLeft);
-  drawPoteau(rightX - postW, rightPostTopY, hRight);
-
-  // Goussets jarret bâtiment principal
-  const arbAngle = Math.atan(cfg.pente / 100);
-  const gBLen = cfg.goussetBas * scale;
-  const gBdx = gBLen * Math.cos(arbAngle), gBdy = gBLen * Math.sin(arbAngle);
-  const gBH = cfg.goussetBas * scale * 0.65;
-
-  // Left jarret
-  svg.appendChild(svgEl('polygon', {
-    points: `${leftX + postW},${leftPostTopY} ${leftX + postW + gBdx},${leftPostTopY - gBdy} ${leftX + postW},${leftPostTopY + gBH}`,
-    fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-  }));
-  // Right jarret
-  if (!isMono) {
-    svg.appendChild(svgEl('polygon', {
-      points: `${rightX - postW},${rightPostTopY} ${rightX - postW - gBdx},${rightPostTopY - gBdy} ${rightX - postW},${rightPostTopY + gBH}`,
-      fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-    }));
-  } else {
-    const lowSide = cfg.monoSens === 'gauche' ? rightX - postW : leftX + postW;
-    const lowTopY = cfg.monoSens === 'gauche' ? rightPostTopY : leftPostTopY;
-    svg.appendChild(svgEl('polygon', {
-      points: `${lowSide},${lowTopY} ${cfg.monoSens === 'gauche' ? lowSide - gBdx : lowSide + gBdx},${lowTopY - gBdy} ${lowSide},${lowTopY + gBH}`,
-      fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-    }));
-  }
-
-  // Gousset faîtage (double pente seulement)
-  if (!isMono) {
-    const gHLen = cfg.goussetHaut * scale;
-    const gHdx = gHLen * Math.cos(arbAngle), gHdy = gHLen * Math.sin(arbAngle);
-    const gFd = cfg.goussetHaut * scale * 0.65;
-    svg.appendChild(svgEl('polygon', {
-      points: `${ridgeX - gHdx},${ridgeYpos + gHdy} ${ridgeX},${ridgeYpos} ${ridgeX + gHdx},${ridgeYpos + gHdy} ${ridgeX},${ridgeYpos + gFd}`,
-      fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-    }));
-  }
-
-  // Arbalétriers
-  const arbThick = Math.max(6, Math.round(arbaProf.h * profScale * 0.45));
-  const drawArb = (sx, sy, ex, ey, color) => {
-    const dx = ex - sx, dy = ey - sy, len = Math.sqrt(dx*dx + dy*dy);
-    const nx = -dy / len * arbThick / 2, ny = dx / len * arbThick / 2;
-    svg.appendChild(svgEl('polygon', {
-      points: `${sx},${sy} ${ex},${ey} ${ex+nx},${ey+ny} ${sx+nx},${sy+ny}`,
-      fill: color || '#888780', stroke: '#1a1a1a', 'stroke-width': '1'
-    }));
-  };
-  if (isMono) {
-    const hx = cfg.monoSens === 'gauche' ? leftX + postW : rightX - postW;
-    const hy = cfg.monoSens === 'gauche' ? leftPostTopY : rightPostTopY;
-    const lx = cfg.monoSens === 'gauche' ? rightX - postW : leftX + postW;
-    const ly = cfg.monoSens === 'gauche' ? rightPostTopY : leftPostTopY;
-    drawArb(hx, hy, lx, ly);
-  } else {
-    drawArb(leftX + postW, leftPostTopY, ridgeX, ridgeYpos);
-    drawArb(rightX - postW, rightPostTopY, ridgeX, ridgeYpos);
-  }
-
-  // Couverture
-  const oh = 15;
-  if (isMono) {
-    const hx = cfg.monoSens === 'gauche' ? leftX - oh : rightX + oh;
-    const hy = cfg.monoSens === 'gauche' ? leftPostTopY : rightPostTopY;
-    const lx = cfg.monoSens === 'gauche' ? rightX + oh : leftX - oh;
-    const ly = cfg.monoSens === 'gauche' ? rightPostTopY : leftPostTopY;
-    svg.appendChild(svgEl('polygon', {
-      points: `${hx},${hy + 5} ${lx},${ly + 5} ${lx},${ly - 3} ${hx},${hy - 8}`,
-      fill: covColor, stroke: '#1a1a1a', 'stroke-width': '1', opacity: '0.7'
-    }));
-  } else {
-    svg.appendChild(svgEl('polygon', {
-      points: `${leftX - oh},${leftPostTopY + 5} ${ridgeX},${ridgeYpos} ${ridgeX},${ridgeYpos - 8} ${leftX - oh - 2},${leftPostTopY - 3}`,
-      fill: covColor, stroke: '#1a1a1a', 'stroke-width': '1', opacity: '0.7'
-    }));
-    svg.appendChild(svgEl('polygon', {
-      points: `${rightX + oh},${rightPostTopY + 5} ${ridgeX},${ridgeYpos} ${ridgeX},${ridgeYpos - 8} ${rightX + oh + 2},${rightPostTopY - 3}`,
-      fill: covColor, stroke: '#1a1a1a', 'stroke-width': '1', opacity: '0.7'
-    }));
-    // Faîtière
-    svg.appendChild(svgEl('rect', { x: ridgeX - 12, y: ridgeYpos - 10, width: 24, height: 14, rx: 2, fill: getCouvertureColorDark(cfg.typeCouverture, cfg.ralCouverture), stroke: '#1a1a1a', 'stroke-width': '1' }));
-  }
-
-  // Pannes bâtiment principal
-  const drawPannes = (sx, sy, ex, ey, nbPannes, hasFaitiere) => {
-    const dx = ex - sx, dy = ey - sy, tot = Math.sqrt(dx*dx+dy*dy);
-    const ux = dx/tot, uy = dy/tot;
-    const distF = hasFaitiere ? cfg.distFaitiere * scale / Math.cos(arbAngle) : 0;
-    const usable = tot - distF;
-    const nbInt = nbPannes + (hasFaitiere ? 1 : 0);
-    const sp = usable / Math.max(nbInt, 1);
-    const pw = 9, ph = 10;
-    // Sablière (panne en pied)
-    svg.appendChild(svgEl('rect', { x: sx - pw/2, y: sy - ph/2, width: pw, height: ph, fill: '#BA7517', stroke: '#1a1a1a', 'stroke-width': '0.8' }));
-    for (let i = 1; i <= nbPannes; i++) {
-      const px = sx + ux * sp * i, py = sy + uy * sp * i;
-      svg.appendChild(svgEl('rect', { x: px - pw/2, y: py - ph/2, width: pw, height: ph, fill: '#BA7517', stroke: '#1a1a1a', 'stroke-width': '0.8' }));
-    }
-    if (hasFaitiere) {
-      const ft = tot - distF;
-      svg.appendChild(svgEl('rect', { x: sx + ux*ft - pw/2, y: sy + uy*ft - ph/2, width: pw, height: ph, fill: '#BA7517', stroke: '#A32D2D', 'stroke-width': '0.8' }));
-    }
-  };
-  if (isMono) {
-    const hx = cfg.monoSens === 'gauche' ? leftX + postW : rightX - postW;
-    const hy = cfg.monoSens === 'gauche' ? leftPostTopY : rightPostTopY;
-    const lx = cfg.monoSens === 'gauche' ? rightX - postW : leftX + postW;
-    const ly = cfg.monoSens === 'gauche' ? rightPostTopY : leftPostTopY;
-    drawPannes(hx, hy, lx, ly, cfg.nbPannesInter, false);
-  } else {
-    drawPannes(leftX + postW, leftPostTopY, ridgeX, ridgeYpos, cfg.nbPannesInter, true);
-    drawPannes(rightX - postW, rightPostTopY, ridgeX, ridgeYpos, cfg.nbPannesInter, true);
-  }
-
-  // Bardage (conditionnel par mur)
-  if (cfg.bardSud) svg.appendChild(svgEl('rect', { x: leftX - 18, y: leftPostTopY, width: 14, height: solY - leftPostTopY - socleH, fill: 'none', stroke: bardColor, 'stroke-width': '1.5', 'stroke-dasharray': '4 3', opacity: '0.8' }));
-  if (cfg.bardNord) svg.appendChild(svgEl('rect', { x: rightX + 4, y: rightPostTopY, width: 14, height: solY - rightPostTopY - socleH, fill: 'none', stroke: bardColor, 'stroke-width': '1.5', 'stroke-dasharray': '4 3', opacity: '0.8' }));
-
-  // Chéneaux
-  const chenW = 18, chenH2 = 10;
-  const drawCheneau = (px, topY, side) => {
-    let cx;
-    if (cfg.cheneauPos === 'exterieur') {
-      cx = side === 'left' ? px - chenW - 4 : px + 4;
-    } else {
-      cx = side === 'left' ? px - 2 : px - chenW + 2;
-    }
-    svg.appendChild(svgEl('rect', { x: cx, y: topY - 2, width: chenW, height: chenH2, fill: 'none', stroke: '#888780', 'stroke-width': '2' }));
-    const descX = cx + chenW / 2;
-    svg.appendChild(svgEl('line', { x1: descX, y1: topY + chenH2 - 2, x2: descX, y2: solY, stroke: '#888780', 'stroke-width': '2' }));
-  };
-  drawCheneau(leftX, leftPostTopY, 'left');
-  drawCheneau(rightX, rightPostTopY, 'right');
-
-  // ===== AUVENT (sans poteau à l'extrémité, avec poutre de renfort) =====
-  const auvColor = '#E67E22';
-  const drawAuvent = (side) => {
-    const isLeft = side === 'left';
-    const prof = isLeft ? cfg.auventGProf : cfg.auventDProf;
-    const auvPente = isLeft ? cfg.auventGPente : cfg.auventDPente;
-    const auvNbPannes = isLeft ? cfg.auventGNbPannes : cfg.auventDNbPannes;
-    const auvGousset = isLeft ? cfg.auventGGousset : cfg.auventDGousset;
-    const mainPostTopY = isLeft ? leftPostTopY : rightPostTopY;
-    const mainX = isLeft ? leftX : rightX;
-
-    // Calcul géométrie auvent
-    const profPx = prof * scale;
-    const auvDrop = prof * (auvPente / 100) * scale; // descente en pixels
-    const tipX = isLeft ? mainX - profPx : mainX + profPx;
-    const tipY = mainPostTopY + auvDrop;
-
-    // Arbalétrier auvent (rafter) - du poteau principal vers l'extrémité
-    const arbStartX = isLeft ? mainX : mainX;
-    drawArb(arbStartX, mainPostTopY, tipX, tipY, '#888780');
-
-    // Poutre horizontale de renfort (du poteau à l'extrémité, à hauteur du bout)
-    svg.appendChild(svgEl('line', { x1: mainX, y1: tipY, x2: tipX, y2: tipY, stroke: '#888780', 'stroke-width': '3' }));
-    // Semelle haute de la poutre
-    svg.appendChild(svgEl('line', { x1: mainX, y1: tipY - 3, x2: tipX, y2: tipY - 3, stroke: '#1a1a1a', 'stroke-width': '0.8' }));
-    svg.appendChild(svgEl('line', { x1: mainX, y1: tipY + 3, x2: tipX, y2: tipY + 3, stroke: '#1a1a1a', 'stroke-width': '0.8' }));
-
-    // Gousset de jarret (sens inversé - vers l'extérieur)
-    const auvAngle = Math.atan(auvPente / 100);
-    const gLen = auvGousset * scale;
-    const gDx = gLen * Math.cos(auvAngle);
-    const gDy = gLen * Math.sin(auvAngle);
-    const gH = auvGousset * scale * 0.65;
-    if (isLeft) {
-      svg.appendChild(svgEl('polygon', {
-        points: `${mainX},${mainPostTopY} ${mainX - gDx},${mainPostTopY + gDy} ${mainX},${mainPostTopY + gH}`,
-        fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-      }));
-    } else {
-      svg.appendChild(svgEl('polygon', {
-        points: `${mainX},${mainPostTopY} ${mainX + gDx},${mainPostTopY + gDy} ${mainX},${mainPostTopY + gH}`,
-        fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-      }));
-    }
-
-    // Couverture auvent
-    const covOH = 8; // débord couverture
-    const covStartX = isLeft ? mainX + 4 : mainX - 4;
-    const covEndX = isLeft ? tipX - covOH : tipX + covOH;
-    const covStartY = mainPostTopY;
-    const covEndY = tipY;
-    svg.appendChild(svgEl('polygon', {
-      points: `${covStartX},${covStartY - 3} ${covEndX},${covEndY - 3} ${covEndX},${covEndY - 10} ${covStartX},${covStartY - 10}`,
-      fill: covColor, stroke: auvColor, 'stroke-width': '1.2', opacity: '0.6'
-    }));
-
-    // Pannes de l'auvent
-    if (auvNbPannes > 0) {
-      const dx = tipX - arbStartX, dy = tipY - mainPostTopY;
-      const tot = Math.sqrt(dx*dx + dy*dy);
-      const ux = dx/tot, uy = dy/tot;
-      const sp = tot / (auvNbPannes + 1);
-      const pw = 8, ph = 8;
-      for (let i = 1; i <= auvNbPannes; i++) {
-        const px = arbStartX + ux * sp * i;
-        const py = mainPostTopY + uy * sp * i;
-        svg.appendChild(svgEl('rect', { x: px - pw/2, y: py - ph/2, width: pw, height: ph, fill: '#BA7517', stroke: '#1a1a1a', 'stroke-width': '0.8' }));
-      }
-    }
-
-    // Label
-    svg.appendChild(svgText((mainX + tipX) / 2, Math.min(mainPostTopY, tipY) - 16, 'Auvent', { fill: auvColor, size: '11', weight: '600' }));
-    // Cotation profondeur
-    const cotAuvY = solY + 24;
-    svg.appendChild(svgEl('line', { x1: isLeft ? tipX : mainX, y1: cotAuvY, x2: isLeft ? mainX : tipX, y2: cotAuvY, stroke: auvColor, 'stroke-width': '0.7' }));
-    svg.appendChild(svgEl('line', { x1: tipX, y1: cotAuvY - 3, x2: tipX, y2: cotAuvY + 3, stroke: auvColor, 'stroke-width': '1' }));
-    svg.appendChild(svgEl('line', { x1: mainX, y1: cotAuvY - 3, x2: mainX, y2: cotAuvY + 3, stroke: auvColor, 'stroke-width': '1' }));
-    svg.appendChild(svgText((mainX + tipX) / 2, cotAuvY + 14, `${prof.toFixed(1)} m`, { fill: auvColor, size: '10' }));
-    // Pente label
-    svg.appendChild(svgText((mainX + tipX) / 2, (mainPostTopY + tipY) / 2 + 16, `${auvPente}%`, { fill: auvColor, size: '10' }));
-  };
-
-  if (cfg.auventG) drawAuvent('left');
-  if (cfg.auventD) drawAuvent('right');
-
-  // ===== APPENTIS (avec pente, pannes, gousset inversé) =====
-  const appColor = '#9B59B6';
-  const drawAppentisCoupe = (side) => {
-    const isLeft = side === 'left';
-    const appLarg = isLeft ? cfg.appGLarg : cfg.appDLarg;
-    const appHpot = isLeft ? cfg.appGHpot : cfg.appDHpot;
-    const appPente = isLeft ? cfg.appGPente : cfg.appDPente;
-    const appNbPannes = isLeft ? cfg.appGNbPannes : cfg.appDNbPannes;
-    const appGousset = isLeft ? cfg.appGGousset : cfg.appDGousset;
-    const mainPostTopY = isLeft ? leftPostTopY : rightPostTopY;
-    const mainX = isLeft ? leftX : rightX;
-    const appX = isLeft ? leftX - appLarg * scale : rightX + appLarg * scale;
-    const appTopY = solY - appHpot * scale;
-
-    // Calcul du point d'attache sur le poteau principal
-    // L'arbalétrier de l'appentis va du poteau ext. vers le poteau principal
-    // La hauteur d'attache = appHpot + appLarg * pente/100
-    const attachH = appHpot + appLarg * (appPente / 100);
-    const attachY = solY - attachH * scale;
-
-    // Poteau appentis (extérieur) - taille selon profilé
-    const appPostW = postW * 0.7;
-    const appFlangeW = postFlangeW * 0.7;
-    const postX = isLeft ? appX : appX - appPostW;
-    svg.appendChild(svgEl('rect', { x: postX, y: appTopY, width: appPostW, height: appHpot * scale, fill: '#888780', stroke: '#1a1a1a', 'stroke-width': '1' }));
-    svg.appendChild(svgEl('rect', { x: postX - (appFlangeW - appPostW)/2, y: appTopY, width: appFlangeW, height: 5, fill: '#888780', stroke: '#1a1a1a', 'stroke-width': '0.8' }));
-    // Socle
-    svg.appendChild(svgEl('rect', { x: postX - 4, y: solY - socleH, width: 20, height: socleH, fill: '#B4B2A9', stroke: '#1a1a1a', 'stroke-width': '0.5', opacity: '0.7' }));
-
-    // Arbalétrier appentis (du poteau ext. vers le point d'attache sur le poteau principal)
-    const arbStartX = isLeft ? appX + 12 : appX - 12;
-    drawArb(arbStartX, appTopY, mainX, attachY, '#888780');
-
-    // Gousset de jarret appentis (sens inversé - vers l'extérieur, au poteau ext.)
-    const appAngle = Math.atan(appPente / 100);
-    const gLen = appGousset * scale;
-    const gDx = gLen * Math.cos(appAngle);
-    const gDy = gLen * Math.sin(appAngle);
-    const gH = appGousset * scale * 0.65;
-    if (isLeft) {
-      // Gousset au poteau extérieur gauche - triangle vers la droite (direction du bâtiment)
-      svg.appendChild(svgEl('polygon', {
-        points: `${appX + 12},${appTopY} ${appX + 12 + gDx},${appTopY - gDy} ${appX + 12},${appTopY + gH}`,
-        fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-      }));
-    } else {
-      svg.appendChild(svgEl('polygon', {
-        points: `${appX - 12},${appTopY} ${appX - 12 - gDx},${appTopY - gDy} ${appX - 12},${appTopY + gH}`,
-        fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '1.2', opacity: '0.9'
-      }));
-    }
-
-    // Couverture appentis
-    const covOH = 8;
-    const csx = isLeft ? mainX : mainX;
-    const cex = isLeft ? appX - covOH : appX + covOH;
-    svg.appendChild(svgEl('polygon', {
-      points: `${csx},${attachY - 3} ${cex},${appTopY - 3} ${cex},${appTopY - 10} ${csx},${attachY - 10}`,
-      fill: covColor, stroke: appColor, 'stroke-width': '1.2', opacity: '0.5'
-    }));
-
-    // Pannes de l'appentis
-    if (appNbPannes > 0) {
-      const dx = mainX - arbStartX, dy = attachY - appTopY;
-      const tot = Math.sqrt(dx*dx + dy*dy);
-      const ux = dx/tot, uy = dy/tot;
-      const sp = tot / (appNbPannes + 1);
-      const pw = 8, ph = 8;
-      for (let i = 1; i <= appNbPannes; i++) {
-        const px = arbStartX + ux * sp * i;
-        const py = appTopY + uy * sp * i;
-        svg.appendChild(svgEl('rect', { x: px - pw/2, y: py - ph/2, width: pw, height: ph, fill: '#BA7517', stroke: '#1a1a1a', 'stroke-width': '0.8' }));
-      }
-    }
-
-    // Bardage appentis
-    const bx = isLeft ? appX - 6 : appX + 2;
-    svg.appendChild(svgEl('rect', { x: bx, y: appTopY, width: 12, height: solY - appTopY - socleH, fill: 'none', stroke: bardColor, 'stroke-width': '1.2', 'stroke-dasharray': '4 3', opacity: '0.7' }));
-
-    // Label
-    svg.appendChild(svgText((mainX + appX) / 2, Math.min(appTopY, attachY) - 16, 'Appentis', { fill: appColor, size: '11', weight: '600' }));
-    // Cotation largeur
-    const cotAppY = solY + 44;
-    svg.appendChild(svgEl('line', { x1: isLeft ? appX : mainX, y1: cotAppY, x2: isLeft ? mainX : appX, y2: cotAppY, stroke: appColor, 'stroke-width': '0.7' }));
-    svg.appendChild(svgEl('line', { x1: appX, y1: cotAppY - 3, x2: appX, y2: cotAppY + 3, stroke: appColor, 'stroke-width': '1' }));
-    svg.appendChild(svgEl('line', { x1: mainX, y1: cotAppY - 3, x2: mainX, y2: cotAppY + 3, stroke: appColor, 'stroke-width': '1' }));
-    svg.appendChild(svgText((mainX + appX) / 2, cotAppY + 14, `${appLarg.toFixed(1)} m`, { fill: appColor, size: '10' }));
-    // Pente label
-    svg.appendChild(svgText((mainX + appX) / 2, (appTopY + attachY) / 2 + 16, `${appPente}%`, { fill: appColor, size: '10' }));
-  };
-  if (cfg.appentisG) drawAppentisCoupe('left');
-  if (cfg.appentisD) drawAppentisCoupe('right');
-
-  // ===== COTATIONS BÂTIMENT PRINCIPAL =====
-  const cotX1 = leftX - (extraLeft > 0 ? extraLeft * scale + 30 : 30);
-  // Hauteur poteaux gauche
-  svg.appendChild(svgEl('line', { x1: cotX1, y1: leftPostTopY, x2: cotX1, y2: solY - socleH, stroke: '#555', 'stroke-width': '0.8' }));
-  svg.appendChild(svgEl('line', { x1: cotX1 - 4, y1: leftPostTopY, x2: cotX1 + 4, y2: leftPostTopY, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgEl('line', { x1: cotX1 - 4, y1: solY - socleH, x2: cotX1 + 4, y2: solY - socleH, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgText(cotX1 - 6, (leftPostTopY + solY - socleH) / 2, `${hLeft.toFixed(2)} m`, { anchor: 'middle', size: '10', transform: `rotate(-90 ${cotX1 - 6} ${(leftPostTopY + solY - socleH) / 2})` }));
-
-  if (!isMono) {
-    const cotX2 = cotX1 - 20;
-    svg.appendChild(svgEl('line', { x1: cotX2, y1: ridgeYpos, x2: cotX2, y2: solY - socleH, stroke: '#555', 'stroke-width': '0.8' }));
-    svg.appendChild(svgEl('line', { x1: cotX2 - 4, y1: ridgeYpos, x2: cotX2 + 4, y2: ridgeYpos, stroke: '#555', 'stroke-width': '1.5' }));
-    svg.appendChild(svgEl('line', { x1: cotX2 - 4, y1: solY - socleH, x2: cotX2 + 4, y2: solY - socleH, stroke: '#555', 'stroke-width': '1.5' }));
-    svg.appendChild(svgText(cotX2 - 6, (ridgeYpos + solY - socleH) / 2, `${totalH.toFixed(2)} m`, { anchor: 'middle', size: '10', transform: `rotate(-90 ${cotX2 - 6} ${(ridgeYpos + solY - socleH) / 2})` }));
-  }
-
-  if (isMono) {
-    const cotXR = rightX + (extraRight > 0 ? extraRight * scale + 30 : 30);
-    svg.appendChild(svgEl('line', { x1: cotXR, y1: rightPostTopY, x2: cotXR, y2: solY - socleH, stroke: '#555', 'stroke-width': '0.8' }));
-    svg.appendChild(svgEl('line', { x1: cotXR - 4, y1: rightPostTopY, x2: cotXR + 4, y2: rightPostTopY, stroke: '#555', 'stroke-width': '1.5' }));
-    svg.appendChild(svgEl('line', { x1: cotXR - 4, y1: solY - socleH, x2: cotXR + 4, y2: solY - socleH, stroke: '#555', 'stroke-width': '1.5' }));
-    svg.appendChild(svgText(cotXR + 6, (rightPostTopY + solY - socleH) / 2, `${hRight.toFixed(2)} m`, { anchor: 'middle', size: '10', transform: `rotate(90 ${cotXR + 6} ${(rightPostTopY + solY - socleH) / 2})` }));
-  }
-
-  // Portée
-  const cotY = solY + 12;
-  svg.appendChild(svgEl('line', { x1: leftX, y1: cotY, x2: rightX, y2: cotY, stroke: '#555', 'stroke-width': '0.8' }));
-  svg.appendChild(svgEl('line', { x1: leftX, y1: cotY - 3, x2: leftX, y2: cotY + 3, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgEl('line', { x1: rightX, y1: cotY - 3, x2: rightX, y2: cotY + 3, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgText((leftX + rightX) / 2, cotY + 14, `${cfg.portee.toFixed(2)} m (ext. poteaux)`, { size: '11' }));
-
-  // Pente label
-  const pLabelX = isMono ? (leftX + rightX) / 2 : (leftX + postW + ridgeX) / 2;
-  const pLabelY = isMono ? (leftPostTopY + rightPostTopY) / 2 - 10 : (leftPostTopY + ridgeYpos) / 2 - 8;
-  svg.appendChild(svgText(pLabelX, pLabelY, `pente ${cfg.pente}%`, { fill: '#555', size: '11' }));
-
-  // Labels acier (dynamiques selon profilé sélectionné)
-  const potLabel = getProfileLabel(cfg.profilPoteaux);
-  const arbaLabel = getProfileLabel(cfg.profilArba);
-  svg.appendChild(svgText(leftX + postW / 2, leftPostTopY - 12, 'Pot. ' + potLabel, { size: '10', fill: '#185FA5' }));
-  svg.appendChild(svgText(rightX - postW / 2, rightPostTopY - 12, 'Pot. ' + potLabel, { size: '10', fill: '#185FA5' }));
-  svg.appendChild(svgText(pLabelX + 30, pLabelY + 22, 'Arb. ' + arbaLabel, { fill: '#185FA5', size: '10' }));
-
-  // Titre
-  const typeLabel = isMono ? 'Mono pente' : 'Double pente';
-  let extras = [];
-  if (cfg.auventG) extras.push('auvent G');
-  if (cfg.auventD) extras.push('auvent D');
-  if (cfg.appentisG) extras.push('appentis G');
-  if (cfg.appentisD) extras.push('appentis D');
-  const extrasStr = extras.length ? ' + ' + extras.join(' + ') : '';
-  svg.appendChild(svgText(W / 2, 18, `Plan en coupe — Devis ${cfg.numDevis} — ${cfg.nomClient}`, { fill: '#1a1a1a', size: '14', weight: '600' }));
-  svg.appendChild(svgText(W / 2, 36, `${cfg.nomChantier} — ${typeLabel}${extrasStr} — portée ${cfg.portee.toFixed(2)} m — pente ${cfg.pente}%`, { size: '11' }));
-  svg.appendChild(svgText(W / 2, 52, `Poteaux: ${getProfileLabel(cfg.profilPoteaux)} — Arbalétriers: ${getProfileLabel(cfg.profilArba)}`, { size: '10', fill: '#185FA5' }));
-
-  // Légende
-  const legY = H - 40;
-  svg.appendChild(svgEl('rect', { x: 20, y: legY, width: 10, height: 10, fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '0.8' }));
-  svg.appendChild(svgText(36, legY + 9, 'Goussets', { anchor: 'start', size: '10' }));
-  svg.appendChild(svgEl('rect', { x: 100, y: legY, width: 10, height: 10, fill: covColor, stroke: '#1a1a1a', 'stroke-width': '0.5', opacity: '0.7' }));
-  svg.appendChild(svgText(116, legY + 9, getCouvertureLabel(cfg.typeCouverture, cfg.ralCouverture), { anchor: 'start', size: '10' }));
-  svg.appendChild(svgEl('rect', { x: 310, y: legY, width: 10, height: 10, fill: '#BA7517', stroke: '#1a1a1a', 'stroke-width': '0.5' }));
-  svg.appendChild(svgText(326, legY + 9, 'Pannes', { anchor: 'start', size: '10' }));
-  if (cfg.auventG || cfg.auventD) {
-    svg.appendChild(svgEl('rect', { x: 400, y: legY, width: 10, height: 10, fill: 'none', stroke: auvColor, 'stroke-width': '1.5' }));
-    svg.appendChild(svgText(416, legY + 9, 'Auvent', { anchor: 'start', size: '10', fill: auvColor }));
-  }
-  if (cfg.appentisG || cfg.appentisD) {
-    svg.appendChild(svgEl('rect', { x: 480, y: legY, width: 10, height: 10, fill: 'none', stroke: appColor, 'stroke-width': '1.5' }));
-    svg.appendChild(svgText(496, legY + 9, 'Appentis', { anchor: 'start', size: '10', fill: appColor }));
-  }
-
-  return svg;
-}
-
-// ========== PLAN DE DESSUS ==========
-function drawDessus(cfg) {
-  const longueur = cfg.nbTravees * cfg.longTravee;
-  const hasAppG = cfg.appentisG, hasAppD = cfg.appentisD;
-  const appGLen = hasAppG ? cfg.appGNbTrav * cfg.appGLongTrav : 0;
-  const appDLen = hasAppD ? cfg.appDNbTrav * cfg.appDLongTrav : 0;
-  // Auvent utilise les mêmes travées que le bâtiment principal
-  const auvGLen = cfg.auventG ? cfg.auventGNbTrav * cfg.longTravee : 0;
-  const auvDLen = cfg.auventD ? cfg.auventDNbTrav * cfg.longTravee : 0;
-
-  const W = 780, H = 640;
-  const svg = svgEl('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}`, xmlns: 'http://www.w3.org/2000/svg' });
-  svg.style.background = '#fff';
-
-  const margin = { left: 90, right: 60, top: 80, bottom: 140 };
-  const drawW = W - margin.left - margin.right;
-  const drawH = H - margin.top - margin.bottom;
-
-  let totalLarg = cfg.portee;
-  let extraTop = 0, extraBot = 0;
-  if (cfg.auventG) extraTop = Math.max(extraTop, cfg.auventGProf);
-  if (cfg.appentisG) extraTop = Math.max(extraTop, cfg.appGLarg);
-  if (cfg.auventD) extraBot = Math.max(extraBot, cfg.auventDProf);
-  if (cfg.appentisD) extraBot = Math.max(extraBot, cfg.appDLarg);
-  totalLarg += extraTop + extraBot;
-
-  const maxLen = Math.max(longueur, appGLen, appDLen, auvGLen, auvDLen);
-  const sc = Math.min(drawW / maxLen, drawH / totalLarg);
-
-  const ox = margin.left;
-  const oy = margin.top + extraTop * sc;
-  const bw = longueur * sc;
-  const bh = cfg.portee * sc;
-
-  // ===== BÂTIMENT PRINCIPAL =====
-  svg.appendChild(svgEl('rect', { x: ox, y: oy, width: bw, height: bh, fill: '#f5f4ed', stroke: '#1a1a1a', 'stroke-width': '2.5' }));
-
-  // Plaques béton
-  const plaqThick = 8;
-  // Long pan plaques (découpées autour des portes)
-  const lpSudPortes = cfg.portes.filter(p => (p.mur||'pignon_g') === 'lp_sud');
-  const lpNordPortes = cfg.portes.filter(p => (p.mur||'pignon_g') === 'lp_nord');
-  if (cfg.plaqSud) {
-    getFreeLongPanZones(longueur, cfg.longTravee, lpSudPortes).forEach(z => {
-      svg.appendChild(svgEl('rect', { x: ox + z.start * sc, y: oy + bh - plaqThick, width: z.len * sc, height: plaqThick, fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '0.8', opacity: '0.8' }));
-    });
-  }
-  if (cfg.plaqNord) {
-    getFreeLongPanZones(longueur, cfg.longTravee, lpNordPortes).forEach(z => {
-      svg.appendChild(svgEl('rect', { x: ox + z.start * sc, y: oy, width: z.len * sc, height: plaqThick, fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '0.8', opacity: '0.8' }));
-    });
-  }
-  if (cfg.plaqPigG) drawPignonPlaques(svg, ox, oy, bh, cfg.portee, sc, cfg.portes.filter(p => (p.mur||'pignon_g') === 'pignon_g'), 'left', plaqThick);
-  if (cfg.plaqPigD) drawPignonPlaques(svg, ox + bw - plaqThick, oy, bh, cfg.portee, sc, cfg.portes.filter(p => (p.mur||'pignon_d') === 'pignon_d'), 'right', plaqThick);
-
-  // Chéneaux
-  const chenH = 8;
-  if (cfg.cheneauPos === 'exterieur') {
-    svg.appendChild(svgEl('rect', { x: ox, y: oy - chenH, width: bw, height: chenH, fill: 'none', stroke: '#888780', 'stroke-width': '2' }));
-    svg.appendChild(svgEl('rect', { x: ox, y: oy + bh, width: bw, height: chenH, fill: 'none', stroke: '#888780', 'stroke-width': '2' }));
-  } else {
-    svg.appendChild(svgEl('rect', { x: ox, y: oy, width: bw, height: chenH, fill: 'none', stroke: '#888780', 'stroke-width': '2' }));
-    svg.appendChild(svgEl('rect', { x: ox, y: oy + bh - chenH, width: bw, height: chenH, fill: 'none', stroke: '#888780', 'stroke-width': '2' }));
-  }
-
-  // Descentes EP
-  const epR = 4;
-  const epOff = cfg.cheneauPos === 'exterieur' ? chenH / 2 + 2 : -chenH / 2;
-  [{ cx: ox, cy: oy - epOff }, { cx: ox + bw, cy: oy - epOff }, { cx: ox, cy: oy + bh + epOff }, { cx: ox + bw, cy: oy + bh + epOff }].forEach(p => {
-    svg.appendChild(svgEl('circle', { ...p, r: epR, fill: '#888780', stroke: '#1a1a1a', 'stroke-width': '1' }));
-  });
-
-  // Portiques (épaisseur selon profilé arbalétrier)
-  const arbaProf2d = getProfile(cfg.profilArba);
-  const arbaLw = Math.max(1.5, Math.round(arbaProf2d.h * 10));
-  const arbaLwEnd = Math.max(2.5, arbaLw * 1.5);
-  const nbPortiques = cfg.nbTravees + 1;
-  const travPx = bw / cfg.nbTravees;
-  for (let i = 0; i < nbPortiques; i++) {
-    const px = ox + i * travPx;
-    svg.appendChild(svgEl('line', { x1: px, y1: oy, x2: px, y2: oy + bh, stroke: '#1a2a4a', 'stroke-width': (i === 0 || i === nbPortiques - 1) ? arbaLwEnd : arbaLw }));
-  }
-
-  // Poteaux pignons (taille selon profilé)
-  const potProf2d = getProfile(cfg.profilPoteaux);
-  const potPxS = 24; // symbolic scale for top view
-  const potRw = Math.max(4, Math.round(potProf2d.b * potPxS)); // along wall
-  const potRh = Math.max(5, Math.round(potProf2d.h * potPxS)); // perpendicular
-  [[ox, oy], [ox, oy + bh - potRh], [ox + bw - potRw, oy], [ox + bw - potRw, oy + bh - potRh]].forEach(([x, y]) => {
-    svg.appendChild(svgEl('rect', { x, y, width: potRw, height: potRh, fill: '#1a2a4a' }));
-  });
-
-  // Faîtage
-  const midY = oy + bh / 2;
-  if (cfg.typeBat === 'double_pente') {
-    svg.appendChild(svgEl('line', { x1: ox, y1: midY, x2: ox + bw, y2: midY, stroke: 'rgba(31,30,29,0.3)', 'stroke-width': '1', 'stroke-dasharray': '8 4' }));
-    svg.appendChild(svgText(ox + bw + 16, midY + 4, 'Faîtage', { anchor: 'start', size: '11' }));
-  }
-
-  // Croisillons
-  cfg.croisillons.forEach(tNum => {
-    const x1 = ox + (tNum - 1) * travPx, x2 = ox + tNum * travPx;
-    const nbCells = 6, cellH = bh / nbCells;
-    for (let j = 0; j < nbCells; j++) {
-      const cy1 = oy + j * cellH, cy2 = oy + (j + 1) * cellH;
-      svg.appendChild(svgEl('line', { x1, y1: cy1, x2: x2, y2: cy2, stroke: '#185FA5', 'stroke-width': '1.2' }));
-      svg.appendChild(svgEl('line', { x1: x2, y1: cy1, x2: x1, y2: cy2, stroke: '#185FA5', 'stroke-width': '1.2' }));
-    }
-    svg.appendChild(svgText((x1 + x2) / 2, oy - 6, `T${tNum}`, { fill: '#185FA5', size: '11' }));
-  });
-
-  // Portes (pignons + long pans)
-  cfg.portes.forEach(p => {
-    const mur = p.mur || (p.pignon === 'droit' ? 'pignon_d' : 'pignon_g');
-    if (mur === 'pignon_g' || mur === 'pignon_d') {
-      const pigX = mur === 'pignon_g' ? ox : ox + bw;
-      const portStartY = oy + p.posY * sc, portH = p.largeur * sc;
-      const dir = mur === 'pignon_g' ? -1 : 1;
-      svg.appendChild(svgEl('line', { x1: pigX, y1: portStartY, x2: pigX, y2: portStartY + portH, stroke: '#f5f4ed', 'stroke-width': '4' }));
-      svg.appendChild(svgEl('line', { x1: pigX, y1: portStartY, x2: pigX, y2: portStartY + portH, stroke: '#1D9E75', 'stroke-width': '2', 'stroke-dasharray': '4 3' }));
-      svg.appendChild(svgEl('rect', { x: pigX + dir * 10 - (dir < 0 ? 24 : 0), y: portStartY - 4, width: 24, height: 7, rx: 2, fill: 'none', stroke: '#1D9E75', 'stroke-width': '1.5' }));
-      svg.appendChild(svgEl('rect', { x: pigX + dir * 12 - (dir < 0 ? 12 : 0), y: portStartY, width: 12, height: portH, fill: 'none', stroke: '#1D9E75', 'stroke-width': '1.5' }));
-      svg.appendChild(svgText(pigX + dir * 38, portStartY + portH / 2 + 4, `${p.largeur}×${p.hauteur}`, { fill: '#1D9E75', size: '10', anchor: dir < 0 ? 'end' : 'start' }));
-    } else {
-      // Long pan door
-      const isSud = mur === 'lp_sud';
-      const wallY = isSud ? oy + bh : oy;
-      const dir = isSud ? 1 : -1;
-      const travIdx = (p.travee || 1) - 1;
-      const travStart = ox + travIdx * travPx;
-      const doorW = p.largeur * sc;
-      const doorCenterX = travStart + travPx / 2;
-      const doorX1 = doorCenterX - doorW / 2, doorX2 = doorCenterX + doorW / 2;
-      svg.appendChild(svgEl('line', { x1: doorX1, y1: wallY, x2: doorX2, y2: wallY, stroke: '#f5f4ed', 'stroke-width': '4' }));
-      svg.appendChild(svgEl('line', { x1: doorX1, y1: wallY, x2: doorX2, y2: wallY, stroke: '#1D9E75', 'stroke-width': '2', 'stroke-dasharray': '4 3' }));
-      svg.appendChild(svgEl('rect', { x: doorX1, y: wallY + dir * 2, width: doorW, height: dir * 12, fill: 'none', stroke: '#1D9E75', 'stroke-width': '1.5' }));
-      svg.appendChild(svgText(doorCenterX, wallY + dir * 22, `${p.largeur}×${p.hauteur}`, { fill: '#1D9E75', size: '10' }));
-    }
-  });
-
-  // Poteaux bardage pignons
-  const drawBardPot = (pigX, pPortes) => {
-    getFreePignonZones(cfg.portee, pPortes).forEach(z => {
-      if (z.len > 3) {
-        const nb = Math.max(1, Math.floor(z.len / 5));
-        const sp = z.len / (nb + 1);
-        for (let i = 1; i <= nb; i++)
-          svg.appendChild(svgEl('circle', { cx: pigX, cy: oy + (z.start + sp * i) * sc, r: 3, fill: 'none', stroke: '#3B8BD4', 'stroke-width': '1.5' }));
-      }
-    });
-  };
-  drawBardPot(ox, cfg.portes.filter(p => (p.mur||'pignon_g') === 'pignon_g'));
-  drawBardPot(ox + bw, cfg.portes.filter(p => (p.mur||'pignon_d') === 'pignon_d'));
-
-  // ===== AUVENT (vue dessus) - sans poteaux à l'extrémité =====
-  if (cfg.auventG) {
-    const auvH = cfg.auventGProf * sc;
-    const auvLen = auvGLen * sc;
-    const auvOx = ox + (bw - auvLen) / 2; // centré sur le bâtiment
-    svg.appendChild(svgEl('rect', { x: auvOx, y: oy - auvH, width: auvLen, height: auvH, fill: '#fef3e8', stroke: '#E67E22', 'stroke-width': '1.5', 'stroke-dasharray': '6 3' }));
-    // Lignes de portiques (alignées avec le bâtiment principal, pas de poteaux au bout)
-    const auvTravPx = auvLen / cfg.auventGNbTrav;
-    for (let i = 0; i <= cfg.auventGNbTrav; i++) {
-      const px = auvOx + i * auvTravPx;
-      // Trait plein côté bâtiment, pointillé côté extrémité (pas de poteau)
-      svg.appendChild(svgEl('line', { x1: px, y1: oy, x2: px, y2: oy - auvH, stroke: '#E67E22', 'stroke-width': '1', 'stroke-dasharray': '4 3', opacity: '0.6' }));
-    }
-    // Poutre de renfort (ligne horizontale côté extrémité - pas de poteaux)
-    svg.appendChild(svgEl('line', { x1: auvOx, y1: oy - auvH, x2: auvOx + auvLen, y2: oy - auvH, stroke: '#E67E22', 'stroke-width': '2' }));
-    svg.appendChild(svgText(auvOx + auvLen / 2, oy - auvH / 2 + 4, `Auvent ${cfg.auventGProf.toFixed(1)} m × ${auvGLen.toFixed(1)} m`, { fill: '#E67E22', size: '11' }));
-  }
-  if (cfg.auventD) {
-    const auvH = cfg.auventDProf * sc;
-    const auvLen = auvDLen * sc;
-    const auvOx = ox + (bw - auvLen) / 2;
-    svg.appendChild(svgEl('rect', { x: auvOx, y: oy + bh, width: auvLen, height: auvH, fill: '#fef3e8', stroke: '#E67E22', 'stroke-width': '1.5', 'stroke-dasharray': '6 3' }));
-    const auvTravPx = auvLen / cfg.auventDNbTrav;
-    for (let i = 0; i <= cfg.auventDNbTrav; i++) {
-      const px = auvOx + i * auvTravPx;
-      svg.appendChild(svgEl('line', { x1: px, y1: oy + bh, x2: px, y2: oy + bh + auvH, stroke: '#E67E22', 'stroke-width': '1', 'stroke-dasharray': '4 3', opacity: '0.6' }));
-    }
-    svg.appendChild(svgEl('line', { x1: auvOx, y1: oy + bh + auvH, x2: auvOx + auvLen, y2: oy + bh + auvH, stroke: '#E67E22', 'stroke-width': '2' }));
-    svg.appendChild(svgText(auvOx + auvLen / 2, oy + bh + auvH / 2 + 4, `Auvent ${cfg.auventDProf.toFixed(1)} m × ${auvDLen.toFixed(1)} m`, { fill: '#E67E22', size: '11' }));
-  }
-
-  // ===== APPENTIS (vue dessus) =====
-  if (hasAppG) {
-    const appW = cfg.appGLarg * sc;
-    const appLen = appGLen * sc;
-    const appOx = ox + (bw - appLen) / 2;
-    svg.appendChild(svgEl('rect', { x: appOx, y: oy - appW, width: appLen, height: appW, fill: '#f3edf7', stroke: '#9B59B6', 'stroke-width': '2' }));
-    const appTravPx = appLen / cfg.appGNbTrav;
-    for (let i = 0; i <= cfg.appGNbTrav; i++) {
-      svg.appendChild(svgEl('line', { x1: appOx + i * appTravPx, y1: oy - appW, x2: appOx + i * appTravPx, y2: oy, stroke: '#9B59B6', 'stroke-width': '1', opacity: '0.5' }));
-    }
-    svg.appendChild(svgText(appOx + appLen / 2, oy - appW / 2 + 4, `Appentis ${cfg.appGLarg.toFixed(1)} × ${appGLen.toFixed(1)} m`, { fill: '#9B59B6', size: '11' }));
-  }
-  if (hasAppD) {
-    const appW = cfg.appDLarg * sc;
-    const appLen = appDLen * sc;
-    const appOx = ox + (bw - appLen) / 2;
-    svg.appendChild(svgEl('rect', { x: appOx, y: oy + bh, width: appLen, height: appW, fill: '#f3edf7', stroke: '#9B59B6', 'stroke-width': '2' }));
-    const appTravPx = appLen / cfg.appDNbTrav;
-    for (let i = 0; i <= cfg.appDNbTrav; i++) {
-      svg.appendChild(svgEl('line', { x1: appOx + i * appTravPx, y1: oy + bh, x2: appOx + i * appTravPx, y2: oy + bh + appW, stroke: '#9B59B6', 'stroke-width': '1', opacity: '0.5' }));
-    }
-    svg.appendChild(svgText(appOx + appLen / 2, oy + bh + appW / 2 + 4, `Appentis ${cfg.appDLarg.toFixed(1)} × ${appDLen.toFixed(1)} m`, { fill: '#9B59B6', size: '11' }));
-  }
-
-  // ===== COTATIONS =====
-  const maxExtBot = Math.max(cfg.auventD ? cfg.auventDProf * sc : 0, hasAppD ? cfg.appDLarg * sc : 0);
-  const cotLY = oy + bh + maxExtBot + 30;
-  svg.appendChild(svgEl('line', { x1: ox, y1: cotLY, x2: ox + bw, y2: cotLY, stroke: '#555', 'stroke-width': '0.8' }));
-  svg.appendChild(svgEl('line', { x1: ox, y1: cotLY - 3, x2: ox, y2: cotLY + 3, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgEl('line', { x1: ox + bw, y1: cotLY - 3, x2: ox + bw, y2: cotLY + 3, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgText(ox + bw / 2, cotLY + 14, `${longueur.toFixed(2)} m (${cfg.nbTravees} travées × ${cfg.longTravee.toFixed(2)} m)`, { size: '11' }));
-
-  // Travée sample
-  const maxExtTop = Math.max(cfg.auventG ? cfg.auventGProf * sc : 0, hasAppG ? cfg.appGLarg * sc : 0);
-  const cotTY = oy - maxExtTop - 15;
-  svg.appendChild(svgEl('line', { x1: ox, y1: cotTY, x2: ox + travPx, y2: cotTY, stroke: '#555', 'stroke-width': '0.7' }));
-  svg.appendChild(svgEl('line', { x1: ox, y1: cotTY - 3, x2: ox, y2: cotTY + 3, stroke: '#555', 'stroke-width': '1' }));
-  svg.appendChild(svgEl('line', { x1: ox + travPx, y1: cotTY - 3, x2: ox + travPx, y2: cotTY + 3, stroke: '#555', 'stroke-width': '1' }));
-  svg.appendChild(svgText(ox + travPx / 2, cotTY - 6, `${cfg.longTravee.toFixed(2)} m`, { size: '10' }));
-
-  // Largeur
-  const cotWX = ox + bw + 24;
-  svg.appendChild(svgEl('line', { x1: cotWX, y1: oy, x2: cotWX, y2: oy + bh, stroke: '#555', 'stroke-width': '0.8' }));
-  svg.appendChild(svgEl('line', { x1: cotWX - 3, y1: oy, x2: cotWX + 3, y2: oy, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgEl('line', { x1: cotWX - 3, y1: oy + bh, x2: cotWX + 3, y2: oy + bh, stroke: '#555', 'stroke-width': '1.5' }));
-  svg.appendChild(svgText(cotWX + 14, oy + bh / 2, `${cfg.portee.toFixed(2)} m`, { anchor: 'middle', size: '11', transform: `rotate(90 ${cotWX + 14} ${oy + bh / 2})` }));
-
-  // Titre
-  const typeLabel = cfg.typeBat === 'mono_pente' ? 'Mono pente' : 'Double pente';
-  let extras = [];
-  if (cfg.auventG) extras.push('auvent N');
-  if (cfg.auventD) extras.push('auvent S');
-  if (cfg.appentisG) extras.push('appentis N');
-  if (cfg.appentisD) extras.push('appentis S');
-  const extrasStr = extras.length ? ' + ' + extras.join(' + ') : '';
-  svg.appendChild(svgText(W / 2, 20, `Plan de dessus — Devis ${cfg.numDevis} — ${cfg.nomClient}`, { fill: '#1a1a1a', size: '14', weight: '600' }));
-  svg.appendChild(svgText(W / 2, 38, `${cfg.nomChantier} — ${typeLabel}${extrasStr} — ${longueur.toFixed(2)} × ${cfg.portee.toFixed(2)} m`, { size: '11' }));
-  svg.appendChild(svgText(W / 2, 54, `Poteaux: ${getProfileLabel(cfg.profilPoteaux)} — Arbalétriers: ${getProfileLabel(cfg.profilArba)}`, { size: '10', fill: '#185FA5' }));
-
-  return svg;
-}
-
-function drawPignonPlaques(svg, baseX, oy, bh, portee, sc, pPortes, side, plaqThick) {
-  getFreePignonZones(portee, pPortes).forEach(z => {
-    svg.appendChild(svgEl('rect', { x: baseX, y: oy + z.start * sc, width: plaqThick, height: z.len * sc, fill: '#E24B4A', stroke: '#A32D2D', 'stroke-width': '0.8', opacity: '0.8' }));
-  });
-}
-
+// ========== ZONE HELPERS ==========
 function getFreePignonZones(portee, pPortes) {
   const sorted = [...pPortes].sort((a, b) => a.posY - b.posY);
   const zones = [];
@@ -1354,10 +455,7 @@ function getFreePignonZones(portee, pPortes) {
   if (cur < portee) zones.push({ start: cur, len: portee - cur });
   return zones;
 }
-
 function getFreeLongPanZones(longueur, longTravee, lpPortes) {
-  // lpPortes: doors on this long pan, each with travee index and largeur
-  // Returns zones along the length (X axis) where there's no door
   const sorted = [...lpPortes].map(p => {
     const travIdx = (p.travee || 1) - 1;
     const center = travIdx * longTravee + longTravee / 2;
@@ -1374,250 +472,20 @@ function getFreeLongPanZones(longueur, longTravee, lpPortes) {
   return zones;
 }
 
-// ========== UPDATE ==========
-function update() {
-  const cfg = getConfig();
-  document.getElementById('coupe-container').innerHTML = '';
-  document.getElementById('coupe-container').appendChild(drawCoupe(cfg));
-  document.getElementById('dessus-container').innerHTML = '';
-  document.getElementById('dessus-container').appendChild(drawDessus(cfg));
-  if (window._scene3d) update3D();
-}
-
-// ========== EXPORT ==========
-function exportSVG(type) {
-  const container = document.getElementById(type === 'coupe' ? 'coupe-container' : 'dessus-container');
-  const s = container.querySelector('svg');
-  if (!s) return;
-  const clone = s.cloneNode(true);
-  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `plan_${type}_${new Date().toISOString().slice(0, 10)}.svg`;
-  a.click();
-}
-function exportPDF(type) {
-  const container = document.getElementById(type === 'coupe' ? 'coupe-container' : 'dessus-container');
-  const s = container.querySelector('svg');
-  if (!s) return;
-  const data = new XMLSerializer().serializeToString(s.cloneNode(true));
-  const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head><title>Plan ${type}</title><style>@page{size:landscape;margin:10mm;}body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}svg{max-width:100%;height:auto;}</style></head><body>${data}</body></html>`);
-  win.document.close();
-  setTimeout(() => win.print(), 500);
-}
-
-
-// ========== SAVE / LOAD PROJECT ==========
-function saveProject() {
-  const cfg = getConfig();
-  cfg.portes = portes;
-  cfg.croisillons = getCroisillons();
-  const data = JSON.stringify(cfg, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  const name = cfg.nomChantier || cfg.nomClient || cfg.numDevis || 'projet';
-  a.download = `projet_${name.replace(/[^a-zA-Z0-9_-]/g, '_')}_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-function loadProject(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const cfg = JSON.parse(e.target.result);
-      applyConfig(cfg);
-    } catch(err) {
-      alert('Erreur de lecture du fichier: ' + err.message);
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = ''; // reset pour pouvoir recharger le même fichier
-}
-
-function applyConfig(cfg) {
-  // Info devis
-  if (cfg.numDevis !== undefined) document.getElementById('numDevis').value = cfg.numDevis;
-  if (cfg.nomClient !== undefined) document.getElementById('nomClient').value = cfg.nomClient;
-  if (cfg.nomChantier !== undefined) document.getElementById('nomChantier').value = cfg.nomChantier;
-  // Type
-  if (cfg.typeBat) { document.getElementById('typeBat').value = cfg.typeBat; onTypeBatChange(); }
-  if (cfg.monoSens) document.getElementById('monoSens').value = cfg.monoSens;
-  // Auvent G
-  if (cfg.auventG !== undefined) { document.getElementById('auventG').checked = cfg.auventG; toggleAuvent(); }
-  if (cfg.auventGProf !== undefined) document.getElementById('auventGProf').value = cfg.auventGProf;
-  if (cfg.auventGNbTrav !== undefined) document.getElementById('auventGNbTrav').value = cfg.auventGNbTrav;
-  if (cfg.auventGPente !== undefined) document.getElementById('auventGPente').value = cfg.auventGPente;
-  if (cfg.auventGNbPannes !== undefined) document.getElementById('auventGNbPannes').value = cfg.auventGNbPannes;
-  if (cfg.auventGGousset !== undefined) document.getElementById('auventGGousset').value = cfg.auventGGousset;
-  // Auvent D
-  if (cfg.auventD !== undefined) { document.getElementById('auventD').checked = cfg.auventD; toggleAuvent(); }
-  if (cfg.auventDProf !== undefined) document.getElementById('auventDProf').value = cfg.auventDProf;
-  if (cfg.auventDNbTrav !== undefined) document.getElementById('auventDNbTrav').value = cfg.auventDNbTrav;
-  if (cfg.auventDPente !== undefined) document.getElementById('auventDPente').value = cfg.auventDPente;
-  if (cfg.auventDNbPannes !== undefined) document.getElementById('auventDNbPannes').value = cfg.auventDNbPannes;
-  if (cfg.auventDGousset !== undefined) document.getElementById('auventDGousset').value = cfg.auventDGousset;
-  // Appentis G
-  if (cfg.appentisG !== undefined) { document.getElementById('appentisG').checked = cfg.appentisG; toggleAppentis(); }
-  if (cfg.appGLarg !== undefined) document.getElementById('appGLarg').value = cfg.appGLarg;
-  if (cfg.appGHpot !== undefined) document.getElementById('appGHpot').value = cfg.appGHpot;
-  if (cfg.appGNbTrav !== undefined) document.getElementById('appGNbTrav').value = cfg.appGNbTrav;
-  if (cfg.appGLongTrav !== undefined) document.getElementById('appGLongTrav').value = cfg.appGLongTrav;
-  if (cfg.appGPente !== undefined) document.getElementById('appGPente').value = cfg.appGPente;
-  if (cfg.appGNbPannes !== undefined) document.getElementById('appGNbPannes').value = cfg.appGNbPannes;
-  if (cfg.appGGousset !== undefined) document.getElementById('appGGousset').value = cfg.appGGousset;
-  // Appentis D
-  if (cfg.appentisD !== undefined) { document.getElementById('appentisD').checked = cfg.appentisD; toggleAppentis(); }
-  if (cfg.appDLarg !== undefined) document.getElementById('appDLarg').value = cfg.appDLarg;
-  if (cfg.appDHpot !== undefined) document.getElementById('appDHpot').value = cfg.appDHpot;
-  if (cfg.appDNbTrav !== undefined) document.getElementById('appDNbTrav').value = cfg.appDNbTrav;
-  if (cfg.appDLongTrav !== undefined) document.getElementById('appDLongTrav').value = cfg.appDLongTrav;
-  if (cfg.appDPente !== undefined) document.getElementById('appDPente').value = cfg.appDPente;
-  if (cfg.appDNbPannes !== undefined) document.getElementById('appDNbPannes').value = cfg.appDNbPannes;
-  if (cfg.appDGousset !== undefined) document.getElementById('appDGousset').value = cfg.appDGousset;
-  // Dimensions
-  if (cfg.portee !== undefined) document.getElementById('portee').value = cfg.portee;
-  if (cfg.nbTravees !== undefined) { document.getElementById('nbTravees').value = cfg.nbTravees; buildCroisillonGrid(); }
-  if (cfg.longTravee !== undefined) document.getElementById('longTravee').value = cfg.longTravee;
-  if (cfg.pente !== undefined) document.getElementById('pente').value = cfg.pente;
-  if (cfg.hauteurPoteau !== undefined) document.getElementById('hauteurPoteau').value = cfg.hauteurPoteau;
-  // Profilés
-  if (cfg.profilPoteaux) document.getElementById('profilPoteaux').value = cfg.profilPoteaux;
-  if (cfg.profilArba) document.getElementById('profilArba').value = cfg.profilArba;
-  // Empannage
-  if (cfg.nbPannesInter !== undefined) document.getElementById('nbPannesInter').value = cfg.nbPannesInter;
-  if (cfg.distFaitiere !== undefined) document.getElementById('distFaitiere').value = cfg.distFaitiere * 1000;
-  // Goussets
-  if (cfg.goussetBas !== undefined) document.getElementById('goussetBas').value = cfg.goussetBas;
-  if (cfg.goussetHaut !== undefined) document.getElementById('goussetHaut').value = cfg.goussetHaut;
-  // Chéneaux
-  if (cfg.cheneauPos) document.getElementById('cheneauPos').value = cfg.cheneauPos;
-  // Plaques béton
-  if (cfg.plaquesPos) document.getElementById('plaquesPos').value = cfg.plaquesPos;
-  if (cfg.plaquesHauteur !== undefined) document.getElementById('plaquesHauteur').value = cfg.plaquesHauteur;
-  if (cfg.plaqSud !== undefined) document.getElementById('plaqSud').checked = cfg.plaqSud;
-  if (cfg.plaqNord !== undefined) document.getElementById('plaqNord').checked = cfg.plaqNord;
-  if (cfg.plaqPigG !== undefined) document.getElementById('plaqPigG').checked = cfg.plaqPigG;
-  if (cfg.plaqPigD !== undefined) document.getElementById('plaqPigD').checked = cfg.plaqPigD;
-  // Croisillons
-  if (cfg.croisillons) {
-    const nb = parseInt(document.getElementById('nbTravees').value);
-    for (let i = 1; i <= nb; i++) {
-      const cb = document.getElementById('crois_' + i);
-      if (cb) cb.checked = cfg.croisillons.includes(i);
-    }
-  }
-  // Couverture/Bardage
-  if (cfg.typeCouverture) { document.getElementById('typeCouverture').value = cfg.typeCouverture; toggleRalCouv(); }
-  if (cfg.ralCouverture) document.getElementById('ralCouverture').value = cfg.ralCouverture;
-  if (cfg.typeBardage) { document.getElementById('typeBardage').value = cfg.typeBardage; toggleRalBard(); }
-  if (cfg.ralBardage) document.getElementById('ralBardage').value = cfg.ralBardage;
-  if (cfg.bardSud !== undefined) document.getElementById('bardSud').checked = cfg.bardSud;
-  if (cfg.bardNord !== undefined) document.getElementById('bardNord').checked = cfg.bardNord;
-  if (cfg.bardPigG !== undefined) document.getElementById('bardPigG').checked = cfg.bardPigG;
-  if (cfg.bardPigD !== undefined) document.getElementById('bardPigD').checked = cfg.bardPigD;
-  // Portes (migrate old pignon field to mur field)
-  if (cfg.portes) {
-    portes = cfg.portes.map(p => {
-      if (!p.mur) p.mur = p.pignon === 'droit' ? 'pignon_d' : 'pignon_g';
-      return p;
-    });
-    renderPortes();
-  }
-  // Refresh
-  update();
-}
-
-function resetProject() {
-  if (!confirm('Réinitialiser tous les paramètres ? Les modifications non sauvegardées seront perdues.')) return;
-  // Info devis
-  document.getElementById('numDevis').value = '';
-  document.getElementById('nomClient').value = '';
-  document.getElementById('nomChantier').value = '';
-  // Type
-  document.getElementById('typeBat').value = 'double_pente'; onTypeBatChange();
-  document.getElementById('monoSens').value = 'gauche';
-  // Auvent
-  document.getElementById('auventG').checked = false;
-  document.getElementById('auventD').checked = false;
-  toggleAuvent();
-  document.getElementById('auventGProf').value = 3;
-  document.getElementById('auventGNbTrav').value = 12;
-  document.getElementById('auventGPente').value = 15;
-  document.getElementById('auventGNbPannes').value = 2;
-  document.getElementById('auventGGousset').value = 1.2;
-  document.getElementById('auventDProf').value = 3;
-  document.getElementById('auventDNbTrav').value = 12;
-  document.getElementById('auventDPente').value = 15;
-  document.getElementById('auventDNbPannes').value = 2;
-  document.getElementById('auventDGousset').value = 1.2;
-  // Appentis
-  document.getElementById('appentisG').checked = false;
-  document.getElementById('appentisD').checked = false;
-  toggleAppentis();
-  // Dimensions
-  document.getElementById('portee').value = 20;
-  document.getElementById('nbTravees').value = 10;
-  document.getElementById('longTravee').value = 5;
-  document.getElementById('pente').value = 20;
-  document.getElementById('hauteurPoteau').value = 6;
-  // Profilés
-  document.getElementById('profilPoteaux').value = 'IPE300';
-  document.getElementById('profilArba').value = 'IPE330';
-  // Empannage
-  document.getElementById('nbPannesInter').value = 6;
-  document.getElementById('distFaitiere').value = 160;
-  // Goussets
-  document.getElementById('goussetBas').value = 2;
-  document.getElementById('goussetHaut').value = 1;
-  // Chéneaux
-  document.getElementById('cheneauPos').value = 'exterieur';
-  // Plaques béton
-  document.getElementById('plaquesPos').value = 'devant';
-  document.getElementById('plaquesHauteur').value = 2.4;
-  document.getElementById('plaqSud').checked = false;
-  document.getElementById('plaqNord').checked = false;
-  document.getElementById('plaqPigG').checked = false;
-  document.getElementById('plaqPigD').checked = false;
-  // Croisillons
-  buildCroisillonGrid();
-  // Couverture/Bardage
-  document.getElementById('typeCouverture').value = 'bac_acier_ag';
-  document.getElementById('ralCouverture').value = 'RAL7016'; toggleRalCouv();
-  document.getElementById('typeBardage').value = 'nergal';
-  document.getElementById('ralBardage').value = 'RAL7016'; toggleRalBard();
-  document.getElementById('bardSud').checked = true;
-  document.getElementById('bardNord').checked = true;
-  document.getElementById('bardPigG').checked = true;
-  document.getElementById('bardPigD').checked = true;
-  // Portes
-  portes = [];
-  renderPortes();
-  // Refresh
-  update();
-}
-
 // ========== INIT ==========
-buildCroisillonGrid();
 toggleRalCouv();
 toggleRalBard();
 renderPortes();
-update();
 </script>
 
 <!-- Three.js r128 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ========== 3D VIEW — Professional Metal Building Configurator ==========
-let _scene3d, _camera3d, _renderer3d;
-let _groups = { structure: null, roof: null, bardage: null, secondary: null };
-let _layerVisible = { structure: true, roof: true, bardage: true, secondary: true };
-let _orbitState = { rotating: false, panning: false, prevX: 0, prevY: 0, theta: -Math.PI / 5, phi: Math.PI / 7, dist: 50, target: { x: 0, y: 4, z: 0 }, needsInit: true };
+// ========== 3D VIEW ==========
+var _scene3d, _camera3d, _renderer3d;
+var _groups = { structure: null, roof: null, bardage: null, secondary: null };
+var _layerVisible = { structure: true, roof: true, bardage: true, secondary: true };
+var _orbitState = { rotating: false, panning: false, prevX: 0, prevY: 0, theta: -Math.PI / 5, phi: Math.PI / 7, dist: 50, target: { x: 0, y: 4, z: 0 }, needsInit: true };
 
 function toggle3DLayer(name, btn) {
   _layerVisible[name] = !_layerVisible[name];
@@ -1638,7 +506,6 @@ function init3D() {
 
   _scene3d = new THREE.Scene();
 
-  // Sky gradient
   const skyCanvas = document.createElement('canvas');
   skyCanvas.width = 2; skyCanvas.height = 512;
   const skyCtx = skyCanvas.getContext('2d');
@@ -1654,12 +521,10 @@ function init3D() {
   skyTex.magFilter = THREE.LinearFilter;
   const skyGeo = new THREE.SphereGeometry(180, 16, 16);
   const skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.BackSide, depthWrite: false });
-  const sky = new THREE.Mesh(skyGeo, skyMat);
-  _scene3d.add(sky);
+  _scene3d.add(new THREE.Mesh(skyGeo, skyMat));
 
   _camera3d = new THREE.PerspectiveCamera(40, 1, 0.5, 500);
 
-  // Lights — soft and warm
   _scene3d.add(new THREE.AmbientLight(0xf0ece0, 0.45));
   const sunLight = new THREE.DirectionalLight(0xfff5e0, 0.85);
   sunLight.position.set(40, 55, 30);
@@ -1676,7 +541,6 @@ function init3D() {
   _scene3d.add(fillLight);
   _scene3d.add(new THREE.HemisphereLight(0xb1d8ff, 0x8a7a5a, 0.35));
 
-  // Ground — concrete slab + grass
   const groundGeo = new THREE.PlaneGeometry(300, 300, 1, 1);
   const groundMat = new THREE.MeshStandardMaterial({ color: 0x7a9a5a, roughness: 0.95, metalness: 0 });
   const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -1685,21 +549,18 @@ function init3D() {
   ground.receiveShadow = true;
   _scene3d.add(ground);
 
-  // Groups
   for (const k of Object.keys(_groups)) {
     _groups[k] = new THREE.Group();
     _groups[k].visible = _layerVisible[k];
     _scene3d.add(_groups[k]);
   }
 
-  // Controls
   canvas.addEventListener('mousedown', onMouseDown3D);
   canvas.addEventListener('mousemove', onMouseMove3D);
   canvas.addEventListener('mouseup', onMouseUp3D);
   canvas.addEventListener('mouseleave', onMouseUp3D);
   canvas.addEventListener('wheel', onWheel3D, { passive: false });
   canvas.addEventListener('contextmenu', e => e.preventDefault());
-  // Touch support
   canvas.addEventListener('touchstart', onTouchStart3D, { passive: false });
   canvas.addEventListener('touchmove', onTouchMove3D, { passive: false });
   canvas.addEventListener('touchend', onTouchEnd3D);
@@ -1711,16 +572,15 @@ function init3D() {
 }
 
 function resize3D() {
-  const pane = document.getElementById('tab-3d');
-  if (!pane || !_renderer3d) return;
-  const w = pane.clientWidth || 800;
-  const h = pane.clientHeight || 500;
+  const main = document.querySelector('.main');
+  if (!main || !_renderer3d) return;
+  const w = main.clientWidth || 800;
+  const h = main.clientHeight || 500;
   _renderer3d.setSize(w, h);
   _camera3d.aspect = w / h;
   _camera3d.updateProjectionMatrix();
 }
 
-// Mouse orbit
 function onMouseDown3D(e) {
   if (e.button === 0) _orbitState.rotating = true;
   if (e.button === 2) _orbitState.panning = true;
@@ -1745,7 +605,6 @@ function onMouseMove3D(e) {
 function onMouseUp3D() { _orbitState.rotating = false; _orbitState.panning = false; }
 function onWheel3D(e) { e.preventDefault(); _orbitState.dist = Math.max(5, Math.min(200, _orbitState.dist * (1 + e.deltaY * 0.001))); }
 
-// Touch orbit
 let _touchDist0 = 0;
 function onTouchStart3D(e) {
   e.preventDefault();
@@ -1781,38 +640,31 @@ function animate3D() {
   _renderer3d.render(_scene3d, _camera3d);
 }
 
-// ========== 3D MATERIALS (pro quality) ==========
+// ========== MATERIALS ==========
 function steelMat() { return new THREE.MeshStandardMaterial({ color: 0x1a2a4a, metalness: 0.6, roughness: 0.3 }); }
 function steelFlangeMat() { return new THREE.MeshStandardMaterial({ color: 0x222e50, metalness: 0.55, roughness: 0.35 }); }
 function steelDarkMat() { return new THREE.MeshStandardMaterial({ color: 0x606058, metalness: 0.55, roughness: 0.35 }); }
 function panneMat() { return new THREE.MeshStandardMaterial({ color: 0xd040d0, metalness: 0.3, roughness: 0.4 }); }
 function goussetMat() { return new THREE.MeshStandardMaterial({ color: 0xe8a020, metalness: 0.35, roughness: 0.35, side: THREE.DoubleSide }); }
 function concreteMat() { return new THREE.MeshStandardMaterial({ color: 0xb8b0a4, roughness: 0.92, metalness: 0 }); }
-function croisMat() { return new THREE.MeshStandardMaterial({ color: 0x20a080, metalness: 0.3, roughness: 0.45 }); }
 function doorMat() { return new THREE.MeshStandardMaterial({ color: 0x28a070, metalness: 0.25, roughness: 0.5 }); }
+function slabMat() { return new THREE.MeshStandardMaterial({ color: 0xc4beb4, roughness: 0.85, metalness: 0 }); }
+function chenMat() { return new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.6, roughness: 0.25 }); }
 function roofMat(cfg) {
-  if (cfg.typeCouverture.startsWith('bac_acier') && cfg.ralCouverture) {
+  if (cfg.typeCouverture.startsWith('bac_acier') && cfg.ralCouverture)
     return new THREE.MeshStandardMaterial({ color: getRalHex3d(cfg.ralCouverture), metalness: 0.3, roughness: 0.45, side: THREE.DoubleSide });
-  }
   const c = { fibrociment: 0x4a4a44, tuile: 0xa86040 };
   return new THREE.MeshStandardMaterial({ color: c[cfg.typeCouverture] || 0x2a2a2a, metalness: 0.25, roughness: 0.55, side: THREE.DoubleSide });
 }
 function bardMat(cfg) {
-  if (['nergal','bac_acier','sandwich'].includes(cfg.typeBardage) && cfg.ralBardage) {
+  if (['nergal','bac_acier','sandwich'].includes(cfg.typeBardage) && cfg.ralBardage)
     return new THREE.MeshStandardMaterial({ color: getRalHex3d(cfg.ralBardage), metalness: 0.25, roughness: 0.45, side: THREE.DoubleSide });
-  }
   const c = { bois: 0xb08850, fibrociment: 0x888078 };
   return new THREE.MeshStandardMaterial({ color: c[cfg.typeBardage] || 0x4878a8, metalness: 0.2, roughness: 0.5, side: THREE.DoubleSide });
 }
-function bardTransMat(cfg) {
-  const m = bardMat(cfg); m.transparent = true; m.opacity = 0.7; return m;
-}
-function auvRoofMat(cfg) { return roofMat(cfg); } // same material as main roof
-function appRoofMat(cfg) { return roofMat(cfg); } // same material as main roof
-function slabMat() { return new THREE.MeshStandardMaterial({ color: 0xc4beb4, roughness: 0.85, metalness: 0 }); }
-function chenMat() { return new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.6, roughness: 0.25 }); }
+function bardTransMat(cfg) { const m = bardMat(cfg); m.transparent = true; m.opacity = 0.7; return m; }
 
-// ========== 3D GEOMETRY HELPERS ==========
+// ========== GEOMETRY HELPERS ==========
 function clearGroup(grp) {
   while (grp.children.length > 0) {
     const c = grp.children[0];
@@ -1848,47 +700,30 @@ function addQuad(grp, p1, p2, p3, p4, mat) {
   m.castShadow = true; m.receiveShadow = true; grp.add(m); return m;
 }
 
-// ========== I-BEAM DRAWING ==========
-// Vertical I-beam post: flanges visible from building sides (along X), web in Z direction
 function addIPost(grp, px, pz, height, prof, matW, matF) {
   const {h, b, tw, tf} = prof;
-  // Web (thin in X, tall, extends in Z = profile depth h)
   addBox(grp, tw, height, h - 2*tf, px, height/2, pz, matW);
-  // Front flange (wide in X = b, thin in Z = tf)
   addBox(grp, b, height, tf, px, height/2, pz - h/2 + tf/2, matF);
-  // Back flange
   addBox(grp, b, height, tf, px, height/2, pz + h/2 - tf/2, matF);
 }
 
-// Angled I-beam (rafter): web + 2 flanges offset perpendicular to beam direction
 function addIBeam(grp, p1, p2, prof, matW, matF) {
   const {h, b, tw, tf} = prof;
   const dx = p2.x-p1.x, dy = p2.y-p1.y, dz = p2.z-p1.z;
   const len = Math.sqrt(dx*dx+dy*dy+dz*dz);
   if (len < 0.01) return;
-  // Web
   addBeam(grp, p1, p2, tw, h - 2*tf, matW);
-  // Perpendicular to beam in YZ plane (for flanges)
   const pLen = Math.sqrt(dy*dy + dz*dz);
   if (pLen < 0.01) return;
-  // Choose perpendicular pointing upward (positive Y component)
   let perpY = dz/pLen, perpZ = -dy/pLen;
   if (perpY < 0) { perpY = -perpY; perpZ = -perpZ; }
   const off = h/2 - tf/2;
   const oY = perpY * off, oZ = perpZ * off;
-  // Upper flange (outward from roof)
-  addBeam(grp,
-    {x:p1.x, y:p1.y+oY, z:p1.z+oZ},
-    {x:p2.x, y:p2.y+oY, z:p2.z+oZ}, b, tf, matF);
-  // Lower flange (inward)
-  addBeam(grp,
-    {x:p1.x, y:p1.y-oY, z:p1.z-oZ},
-    {x:p2.x, y:p2.y-oY, z:p2.z-oZ}, b, tf, matF);
+  addBeam(grp,{x:p1.x,y:p1.y+oY,z:p1.z+oZ},{x:p2.x,y:p2.y+oY,z:p2.z+oZ}, b, tf, matF);
+  addBeam(grp,{x:p1.x,y:p1.y-oY,z:p1.z-oZ},{x:p2.x,y:p2.y-oY,z:p2.z-oZ}, b, tf, matF);
 }
 
-// ========== TRIANGULAR GOUSSET PLATE ==========
 function addGoussetTri(grp, v1, v2, v3, thickness, mat) {
-  // Normal of the triangle
   const ax=v2.x-v1.x, ay=v2.y-v1.y, az=v2.z-v1.z;
   const bx=v3.x-v1.x, by=v3.y-v1.y, bz=v3.z-v1.z;
   let nx = ay*bz - az*by, ny = az*bx - ax*bz, nz = ax*by - ay*bx;
@@ -1896,7 +731,6 @@ function addGoussetTri(grp, v1, v2, v3, thickness, mat) {
   if (nl < 0.001) return;
   nx /= nl; ny /= nl; nz /= nl;
   const ht = thickness/2;
-  // Front and back triangles
   const f1={x:v1.x+nx*ht,y:v1.y+ny*ht,z:v1.z+nz*ht};
   const f2={x:v2.x+nx*ht,y:v2.y+ny*ht,z:v2.z+nz*ht};
   const f3={x:v3.x+nx*ht,y:v3.y+ny*ht,z:v3.z+nz*ht};
@@ -1904,7 +738,7 @@ function addGoussetTri(grp, v1, v2, v3, thickness, mat) {
   const b2={x:v2.x-nx*ht,y:v2.y-ny*ht,z:v2.z-nz*ht};
   const b3={x:v3.x-nx*ht,y:v3.y-ny*ht,z:v3.z-nz*ht};
   const geo = new THREE.BufferGeometry();
-  const verts = new Float32Array([
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
     f1.x,f1.y,f1.z, f2.x,f2.y,f2.z, f3.x,f3.y,f3.z,
     b3.x,b3.y,b3.z, b2.x,b2.y,b2.z, b1.x,b1.y,b1.z,
     f1.x,f1.y,f1.z, b1.x,b1.y,b1.z, f2.x,f2.y,f2.z,
@@ -1913,12 +747,10 @@ function addGoussetTri(grp, v1, v2, v3, thickness, mat) {
     f3.x,f3.y,f3.z, b2.x,b2.y,b2.z, b3.x,b3.y,b3.z,
     f3.x,f3.y,f3.z, b3.x,b3.y,b3.z, f1.x,f1.y,f1.z,
     f1.x,f1.y,f1.z, b3.x,b3.y,b3.z, b1.x,b1.y,b1.z,
-  ]);
-  geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+  ]), 3));
   geo.computeVertexNormals();
   const m = new THREE.Mesh(geo, mat);
   m.castShadow = true; m.receiveShadow = true; grp.add(m);
-  return m;
 }
 
 // ========== BUILD 3D SCENE ==========
@@ -1933,421 +765,419 @@ function update3D() {
   const Hp = cfg.hauteurPoteau;
   const halfL = L/2, halfW = W/2;
 
+  const isDesaxe3d = cfg.typeBat === 'double_pente_desaxe';
+  const ridgeFromLeft3d = isDesaxe3d ? cfg.desaxeG : W / 2;
   const hLeft = Hp;
   let hRight;
   if (isMono) { const rise = W * cfg.pente / 100; hRight = cfg.monoSens === 'gauche' ? Hp - rise : Hp; }
   else hRight = Hp;
-  const ridgeH = isMono ? Math.max(hLeft, hRight) : Hp + (W/2) * cfg.pente / 100;
-  const rise = ridgeH - Hp;
+  const ridgeH = isMono ? Math.max(hLeft, hRight) : Hp + ridgeFromLeft3d * cfg.pente / 100;
+  const ridgeZ = -halfW + ridgeFromLeft3d;
 
-  // Profile data
   const potProf = getProfile(cfg.profilPoteaux);
   const arbaProf = getProfile(cfg.profilArba);
 
   const stMat = steelMat(), stF = steelFlangeMat(), stDark = steelDarkMat();
   const pMat = panneMat(), gMat = goussetMat();
   const rMat = roofMat(cfg), bMat = bardMat(cfg), btMat = bardTransMat(cfg);
-  const cMat = croisMat(), dMat = doorMat(), chMat = chenMat(), cncMat = concreteMat(), slMat = slabMat();
+  const dMat = doorMat(), chMat = chenMat(), cncMat = concreteMat(), slMat = slabMat();
 
-  // ===== CONCRETE SLAB under building =====
+  // Dalle
   addBox(_groups.secondary, L + 1, 0.15, W + 1, 0, -0.075, 0, slMat);
 
-  // ===== PORTIQUES (structure group) =====
+  // Portiques
   const nbPort = cfg.nbTravees + 1;
   for (let i = 0; i < nbPort; i++) {
     const px = -halfL + i * cfg.longTravee;
-
-    // Poteaux as I-beam profiles
     addIPost(_groups.structure, px, -halfW, hLeft, potProf, stMat, stF);
     addIPost(_groups.structure, px, halfW, hRight, potProf, stMat, stF);
-
-    // Platines de pied
     addBox(_groups.structure, potProf.b+0.08, 0.025, potProf.h+0.08, px, 0.0125, -halfW, stDark);
     addBox(_groups.structure, potProf.b+0.08, 0.025, potProf.h+0.08, px, 0.0125, halfW, stDark);
 
-    // Arbalétriers as I-beam profiles
     if (isMono) {
       const hz = cfg.monoSens==='gauche'?-halfW:halfW, hy = cfg.monoSens==='gauche'?hLeft:hRight;
       const lz = cfg.monoSens==='gauche'?halfW:-halfW, ly = cfg.monoSens==='gauche'?hRight:hLeft;
       addIBeam(_groups.structure, {x:px,y:hy,z:hz}, {x:px,y:ly,z:lz}, arbaProf, stMat, stF);
     } else {
-      addIBeam(_groups.structure, {x:px,y:hLeft,z:-halfW}, {x:px,y:ridgeH,z:0}, arbaProf, stMat, stF);
-      addIBeam(_groups.structure, {x:px,y:hRight,z:halfW}, {x:px,y:ridgeH,z:0}, arbaProf, stMat, stF);
+      addIBeam(_groups.structure, {x:px,y:hLeft,z:-halfW}, {x:px,y:ridgeH,z:ridgeZ}, arbaProf, stMat, stF);
+      addIBeam(_groups.structure, {x:px,y:hRight,z:halfW}, {x:px,y:ridgeH,z:ridgeZ}, arbaProf, stMat, stF);
     }
 
-    // ===== GOUSSETS TRIANGULAIRES (jarret) =====
+    // Goussets jarret
     const gB = cfg.goussetBas;
+    const arbaH3d = arbaProf.h;
     if (!isMono) {
-      // LEFT jarret: triangle at post-rafter connection
-      // Rafter goes from (px, hLeft, -halfW) toward (px, ridgeH, 0)
-      const lRaftDy = ridgeH - hLeft, lRaftDz = halfW;
+      const lRaftDy = ridgeH - hLeft, lRaftDz = ridgeZ - (-halfW);
       const lRaftLen = Math.sqrt(lRaftDy*lRaftDy + lRaftDz*lRaftDz);
       const lRdyN = lRaftDy/lRaftLen, lRdzN = lRaftDz/lRaftLen;
       addGoussetTri(_groups.structure,
-        {x:px, y:hLeft, z:-halfW},                         // joint
-        {x:px, y:hLeft - gB, z:-halfW},                    // down post
-        {x:px, y:hLeft + lRdyN*gB, z:-halfW + lRdzN*gB},  // along rafter
-        0.012, gMat);
+        {x:px, y:hLeft, z:-halfW}, {x:px, y:hLeft - arbaH3d, z:-halfW},
+        {x:px, y:hLeft + lRdyN*gB, z:-halfW + lRdzN*gB}, 0.012, gMat);
 
-      // RIGHT jarret
-      const rRaftDy = ridgeH - hRight, rRaftDz = -halfW;
+      const rRaftDy = ridgeH - hRight, rRaftDz = ridgeZ - halfW;
       const rRaftLen = Math.sqrt(rRaftDy*rRaftDy + rRaftDz*rRaftDz);
       const rRdyN = rRaftDy/rRaftLen, rRdzN = rRaftDz/rRaftLen;
       addGoussetTri(_groups.structure,
-        {x:px, y:hRight, z:halfW},
-        {x:px, y:hRight - gB, z:halfW},
-        {x:px, y:hRight + rRdyN*gB, z:halfW + rRdzN*gB},
-        0.012, gMat);
+        {x:px, y:hRight, z:halfW}, {x:px, y:hRight - arbaH3d, z:halfW},
+        {x:px, y:hRight + rRdyN*gB, z:halfW + rRdzN*gB}, 0.012, gMat);
 
-      // RIDGE gousset (faîtage)
       const gH = cfg.goussetHaut;
+      const lRdyN2 = lRdyN, lRdzN2 = lRdzN;
+      const rRdyN2 = rRdyN, rRdzN2 = rRdzN;
       addGoussetTri(_groups.structure,
-        {x:px, y:ridgeH, z:0},                               // ridge top
-        {x:px, y:ridgeH - lRdyN*gH, z:0 - lRdzN*gH},       // left rafter
-        {x:px, y:ridgeH - rRdyN*gH, z:0 - rRdzN*gH},       // right rafter
+        {x:px, y:ridgeH, z:ridgeZ},
+        {x:px, y:ridgeH - lRdyN2*gH, z:ridgeZ - lRdzN2*gH},
+        {x:px, y:ridgeH - rRdyN2*gH, z:ridgeZ - rRdzN2*gH},
         0.012, gMat);
     } else {
-      // Mono pente: goussets at both post-rafter junctions
       const hz = cfg.monoSens==='gauche'?-halfW:halfW, hy = cfg.monoSens==='gauche'?hLeft:hRight;
       const lz = cfg.monoSens==='gauche'?halfW:-halfW, ly = cfg.monoSens==='gauche'?hRight:hLeft;
       const mDy = ly-hy, mDz = lz-hz;
       const mLen = Math.sqrt(mDy*mDy+mDz*mDz);
       const mDyN=mDy/mLen, mDzN=mDz/mLen;
-      // High side
       addGoussetTri(_groups.structure,
-        {x:px, y:hy, z:hz}, {x:px, y:hy-gB, z:hz},
+        {x:px, y:hy, z:hz}, {x:px, y:hy-arbaH3d, z:hz},
         {x:px, y:hy+mDyN*gB, z:hz+mDzN*gB}, 0.012, gMat);
-      // Low side
       addGoussetTri(_groups.structure,
-        {x:px, y:ly, z:lz}, {x:px, y:ly-gB, z:lz},
+        {x:px, y:ly, z:lz}, {x:px, y:ly-arbaH3d, z:lz},
         {x:px, y:ly-mDyN*gB, z:lz-mDzN*gB}, 0.012, gMat);
     }
   }
 
-  // Lisses de portée (horizontal ties between portiques at column tops)
+  // Lisses
   for (let i = 0; i < cfg.nbTravees; i++) {
     const x1 = -halfL + i * cfg.longTravee, x2 = x1 + cfg.longTravee;
     addBeam(_groups.structure, {x:x1,y:hLeft,z:-halfW}, {x:x2,y:hLeft,z:-halfW}, 0.10, 0.08, stDark);
     addBeam(_groups.structure, {x:x1,y:hRight,z:halfW}, {x:x2,y:hRight,z:halfW}, 0.10, 0.08, stDark);
   }
 
-  // ===== PANNES (ON TOP of rafters) =====
+  // Pannes
   const panW = 0.075, panH = 0.225;
   const drawPannes3D = (z1,y1,z2,y2,nbP,hasF) => {
     const dz=z2-z1, dy=y2-y1, tot=Math.sqrt(dz*dz+dy*dy);
     const dF=hasF?cfg.distFaitiere:0, usable=tot-dF;
     const nb=nbP+(hasF?1:0), sp=usable/Math.max(nb,1);
-    // Perpendicular offset to place pannes ON TOP of rafters
-    const pLen = Math.sqrt(dy*dy + dz*dz);
-    let perpY = dz/pLen, perpZ = -dy/pLen;
-    if (perpY < 0) { perpY = -perpY; perpZ = -perpZ; }
-    const panOff = arbaProf.h/2 + panH/2;
-    const oY = perpY * panOff;
-    const oZ = perpZ * panOff;
-    for (let j=0; j<=nbP; j++) {
-      const t = j===0?0:sp*j/tot;
+    const pLen=Math.sqrt(dy*dy+dz*dz);
+    let perpY=dz/pLen, perpZ=-dy/pLen;
+    if(perpY<0){perpY=-perpY;perpZ=-perpZ;}
+    const panOff=arbaProf.h/2+panH/2;
+    const oY=perpY*panOff, oZ=perpZ*panOff;
+    for(let j=0; j<=nbP; j++){
+      const t=j===0?0:sp*j/tot;
       addBox(_groups.structure, L, panH, panW, 0, y1+dy*t+oY, z1+dz*t+oZ, pMat);
     }
-    if (hasF) { const ft=(tot-dF)/tot; addBox(_groups.structure, L, panH, panW, 0, y1+dy*ft+oY, z1+dz*ft+oZ, pMat); }
+    if(hasF){const ft=(tot-dF)/tot; addBox(_groups.structure, L, panH, panW, 0, y1+dy*ft+oY, z1+dz*ft+oZ, pMat);}
   };
-  if (isMono) {
+  if(isMono){
     const hz=cfg.monoSens==='gauche'?-halfW:halfW, hy=cfg.monoSens==='gauche'?hLeft:hRight;
     const lz=cfg.monoSens==='gauche'?halfW:-halfW, ly=cfg.monoSens==='gauche'?hRight:hLeft;
     drawPannes3D(hz,hy,lz,ly,cfg.nbPannesInter,false);
   } else {
-    drawPannes3D(-halfW,hLeft,0,ridgeH,cfg.nbPannesInter,true);
-    drawPannes3D(halfW,hRight,0,ridgeH,cfg.nbPannesInter,true);
+    drawPannes3D(-halfW,hLeft,ridgeZ,ridgeH,cfg.nbPannesInter,true);
+    drawPannes3D(halfW,hRight,ridgeZ,ridgeH,cfg.nbPannesInter,true);
   }
 
-  // ===== FAÎTIÈRE =====
-  if (!isMono) addBox(_groups.structure, L+0.3, 0.14, 0.14, 0, ridgeH+arbaProf.h/2+0.07, 0, stDark);
+  // Faîtière
+  if(!isMono) addBox(_groups.structure, L+0.3, 0.14, 0.14, 0, ridgeH+arbaProf.h/2+0.07, ridgeZ, stDark);
 
-  // ===== TOITURE (roof group) =====
+  // Toiture
   const oh = 0.5;
-  const roofOff = arbaProf.h/2 + panH + 0.02; // offset roof above pannes (pannes are on top of rafters)
-  if (isMono) {
+  const roofOff = arbaProf.h/2 + panH + 0.02;
+  if(isMono){
     const hz=cfg.monoSens==='gauche'?-halfW-oh:halfW+oh, hy=cfg.monoSens==='gauche'?hLeft:hRight;
     const lz=cfg.monoSens==='gauche'?halfW+oh:-halfW-oh, ly=cfg.monoSens==='gauche'?hRight:hLeft;
-    // Compute perpendicular offset for roof
     const mdy=ly-hy, mdz=lz-hz, ml=Math.sqrt(mdy*mdy+mdz*mdz);
     let rpY=mdz/ml, rpZ=-mdy/ml; if(rpY<0){rpY=-rpY;rpZ=-rpZ;}
     const rOY=rpY*roofOff, rOZ=rpZ*roofOff;
-    addQuad(_groups.roof, {x:-halfL-oh,y:hy+rOY,z:hz+rOZ},{x:halfL+oh,y:hy+rOY,z:hz+rOZ},{x:-halfL-oh,y:ly+rOY,z:lz+rOZ},{x:halfL+oh,y:ly+rOY,z:lz+rOZ}, rMat);
+    addQuad(_groups.roof,{x:-halfL-oh,y:hy+rOY,z:hz+rOZ},{x:halfL+oh,y:hy+rOY,z:hz+rOZ},{x:-halfL-oh,y:ly+rOY,z:lz+rOZ},{x:halfL+oh,y:ly+rOY,z:lz+rOZ}, rMat);
   } else {
-    // Left versant perpendicular offset
-    const ldy=ridgeH-hLeft, ldz=halfW, ll=Math.sqrt(ldy*ldy+ldz*ldz);
+    const ldy=ridgeH-hLeft, ldz=ridgeZ-(-halfW), ll=Math.sqrt(ldy*ldy+ldz*ldz);
     let lpY=ldz/ll, lpZ=-ldy/ll; if(lpY<0){lpY=-lpY;lpZ=-lpZ;}
     const lOY=lpY*roofOff, lOZ=lpZ*roofOff;
-    addQuad(_groups.roof, {x:-halfL-oh,y:hLeft+lOY,z:-halfW+lOZ},{x:halfL+oh,y:hLeft+lOY,z:-halfW+lOZ},{x:-halfL-oh,y:ridgeH+lOY,z:0+lOZ},{x:halfL+oh,y:ridgeH+lOY,z:0+lOZ}, rMat);
-    // Right versant
-    const rdy=ridgeH-hRight, rdz=-halfW, rl=Math.sqrt(rdy*rdy+rdz*rdz);
+    addQuad(_groups.roof,{x:-halfL-oh,y:hLeft+lOY,z:-halfW+lOZ},{x:halfL+oh,y:hLeft+lOY,z:-halfW+lOZ},{x:-halfL-oh,y:ridgeH+lOY,z:ridgeZ+lOZ},{x:halfL+oh,y:ridgeH+lOY,z:ridgeZ+lOZ}, rMat);
+    const rdy=ridgeH-hRight, rdz=ridgeZ-halfW, rl=Math.sqrt(rdy*rdy+rdz*rdz);
     let rpY=rdz/rl, rpZ=-rdy/rl; if(rpY<0){rpY=-rpY;rpZ=-rpZ;}
     const rOY=rpY*roofOff, rOZ=rpZ*roofOff;
-    addQuad(_groups.roof, {x:-halfL-oh,y:ridgeH+rOY,z:0+rOZ},{x:halfL+oh,y:ridgeH+rOY,z:0+rOZ},{x:-halfL-oh,y:hRight+rOY,z:halfW+rOZ},{x:halfL+oh,y:hRight+rOY,z:halfW+rOZ}, rMat);
-    // Ridge cap
-    addBox(_groups.roof, L+oh*2, 0.06, 0.35, 0, ridgeH+roofOff+0.04, 0, stDark);
+    addQuad(_groups.roof,{x:-halfL-oh,y:ridgeH+rOY,z:ridgeZ+rOZ},{x:halfL+oh,y:ridgeH+rOY,z:ridgeZ+rOZ},{x:-halfL-oh,y:hRight+rOY,z:halfW+rOZ},{x:halfL+oh,y:hRight+rOY,z:halfW+rOZ}, rMat);
+    addBox(_groups.roof, L+oh*2, 0.06, 0.35, 0, ridgeH+roofOff+0.04, ridgeZ, stDark);
   }
 
-  // ===== CHÉNEAUX (roof group) =====
-  const cS=0.22, cOff=cfg.cheneauPos==='exterieur'?0.2:-0.05;
-  addBox(_groups.roof, L, cS*0.6, cS, 0, hLeft-cS*0.3, -halfW-cOff, chMat);
-  addBox(_groups.roof, L, cS*0.6, cS, 0, hRight-cS*0.3, halfW+cOff, chMat);
-  // Descentes EP (coins)
-  const epH = hLeft, epR = 0.06;
-  [{x:-halfL+0.3,z:-halfW-cOff},{x:halfL-0.3,z:-halfW-cOff},{x:-halfL+0.3,z:halfW+cOff},{x:halfL-0.3,z:halfW+cOff}].forEach(p => {
-    const geo = new THREE.CylinderGeometry(epR, epR, epH, 8);
-    const m = new THREE.Mesh(geo, chMat); m.position.set(p.x, epH/2, p.z); _groups.roof.add(m);
+  // Chéneaux
+  const cS=0.22, cOff=0.2, chenDep3d=0.5, chenLen3d=L+2*chenDep3d;
+  addBox(_groups.roof, chenLen3d, cS*0.6, cS, 0, hLeft-cS*0.3, -halfW-cOff, chMat);
+  addBox(_groups.roof, chenLen3d, cS*0.6, cS, 0, hRight-cS*0.3, halfW+cOff, chMat);
+  const epR=0.06;
+  [{x:-halfL-chenDep3d+0.1,z:-halfW-cOff,h:hLeft},{x:halfL+chenDep3d-0.1,z:-halfW-cOff,h:hLeft},
+   {x:-halfL-chenDep3d+0.1,z:halfW+cOff,h:hRight},{x:halfL+chenDep3d-0.1,z:halfW+cOff,h:hRight}].forEach(p=>{
+    const geo=new THREE.CylinderGeometry(epR,epR,p.h,8);
+    const m=new THREE.Mesh(geo,chMat); m.position.set(p.x,p.h/2,p.z); _groups.roof.add(m);
   });
 
-  // ===== BARDAGE (bardage group) — conditionnel par mur =====
-  if (cfg.bardSud) addQuad(_groups.bardage, {x:-halfL,y:0,z:-halfW-.12},{x:halfL,y:0,z:-halfW-.12},{x:-halfL,y:hLeft,z:-halfW-.12},{x:halfL,y:hLeft,z:-halfW-.12}, bMat);
-  if (cfg.bardNord) addQuad(_groups.bardage, {x:-halfL,y:0,z:halfW+.12},{x:halfL,y:0,z:halfW+.12},{x:-halfL,y:hRight,z:halfW+.12},{x:halfL,y:hRight,z:halfW+.12}, bMat);
-  // Pignons
-  if (isMono) {
-    if (cfg.bardPigG) addQuad(_groups.bardage, {x:-halfL-.04,y:0,z:-halfW},{x:-halfL-.04,y:0,z:halfW},{x:-halfL-.04,y:hLeft,z:-halfW},{x:-halfL-.04,y:hRight,z:halfW}, btMat);
-    if (cfg.bardPigD) addQuad(_groups.bardage, {x:halfL+.04,y:0,z:-halfW},{x:halfL+.04,y:0,z:halfW},{x:halfL+.04,y:hLeft,z:-halfW},{x:halfL+.04,y:hRight,z:halfW}, btMat);
+  // Bardage
+  if(cfg.bardSud) addQuad(_groups.bardage,{x:-halfL,y:0,z:-halfW-.12},{x:halfL,y:0,z:-halfW-.12},{x:-halfL,y:hLeft,z:-halfW-.12},{x:halfL,y:hLeft,z:-halfW-.12}, bMat);
+  if(cfg.bardNord) addQuad(_groups.bardage,{x:-halfL,y:0,z:halfW+.12},{x:halfL,y:0,z:halfW+.12},{x:-halfL,y:hRight,z:halfW+.12},{x:halfL,y:hRight,z:halfW+.12}, bMat);
+  if(isMono){
+    if(cfg.bardPigG) addQuad(_groups.bardage,{x:-halfL-.04,y:0,z:-halfW},{x:-halfL-.04,y:0,z:halfW},{x:-halfL-.04,y:hLeft,z:-halfW},{x:-halfL-.04,y:hRight,z:halfW}, btMat);
+    if(cfg.bardPigD) addQuad(_groups.bardage,{x:halfL+.04,y:0,z:-halfW},{x:halfL+.04,y:0,z:halfW},{x:halfL+.04,y:hLeft,z:-halfW},{x:halfL+.04,y:hRight,z:halfW}, btMat);
   } else {
-    if (cfg.bardPigG) {
-      addQuad(_groups.bardage, {x:-halfL-.04,y:0,z:-halfW},{x:-halfL-.04,y:0,z:0},{x:-halfL-.04,y:hLeft,z:-halfW},{x:-halfL-.04,y:ridgeH,z:0}, btMat);
-      addQuad(_groups.bardage, {x:-halfL-.04,y:0,z:0},{x:-halfL-.04,y:0,z:halfW},{x:-halfL-.04,y:ridgeH,z:0},{x:-halfL-.04,y:hRight,z:halfW}, btMat);
+    if(cfg.bardPigG){
+      addQuad(_groups.bardage,{x:-halfL-.04,y:0,z:-halfW},{x:-halfL-.04,y:0,z:ridgeZ},{x:-halfL-.04,y:hLeft,z:-halfW},{x:-halfL-.04,y:ridgeH,z:ridgeZ},btMat);
+      addQuad(_groups.bardage,{x:-halfL-.04,y:0,z:ridgeZ},{x:-halfL-.04,y:0,z:halfW},{x:-halfL-.04,y:ridgeH,z:ridgeZ},{x:-halfL-.04,y:hRight,z:halfW},btMat);
     }
-    if (cfg.bardPigD) {
-      addQuad(_groups.bardage, {x:halfL+.04,y:0,z:-halfW},{x:halfL+.04,y:0,z:0},{x:halfL+.04,y:hLeft,z:-halfW},{x:halfL+.04,y:ridgeH,z:0}, btMat);
-      addQuad(_groups.bardage, {x:halfL+.04,y:0,z:0},{x:halfL+.04,y:0,z:halfW},{x:halfL+.04,y:ridgeH,z:0},{x:halfL+.04,y:hRight,z:halfW}, btMat);
+    if(cfg.bardPigD){
+      addQuad(_groups.bardage,{x:halfL+.04,y:0,z:-halfW},{x:halfL+.04,y:0,z:ridgeZ},{x:halfL+.04,y:hLeft,z:-halfW},{x:halfL+.04,y:ridgeH,z:ridgeZ},btMat);
+      addQuad(_groups.bardage,{x:halfL+.04,y:0,z:ridgeZ},{x:halfL+.04,y:0,z:halfW},{x:halfL+.04,y:ridgeH,z:ridgeZ},{x:halfL+.04,y:hRight,z:halfW},btMat);
     }
   }
 
-  // ===== PLAQUES BÉTON (secondary) — découpées autour des portes =====
-  const plH=cfg.plaquesHauteur, plT=0.15, plOff=cfg.plaquesPos==='devant'?potProf.h/2+plT/2+.05:0;
-  const longueur3d = cfg.nbTravees * cfg.longTravee;
-  // Long pan Sud
-  if (cfg.plaqSud) {
-    const lpSudP = cfg.portes.filter(p=>(p.mur||'pignon_g')==='lp_sud');
-    getFreeLongPanZones(longueur3d, cfg.longTravee, lpSudP).forEach(z => {
-      const segW = z.len, segX = -halfL + z.start + segW/2;
-      addBox(_groups.secondary, segW, plH, plT, segX, plH/2, -halfW-plOff, cncMat);
+  // Plaques béton
+  const plH=cfg.plaquesHauteur, plT=0.15, plOff=cfg.plaquesPos==='devant'?-(potProf.h/2+plT/2+.05):0;
+  const longueur3d=cfg.nbTravees*cfg.longTravee;
+  if(cfg.plaqSud){
+    getFreeLongPanZones(longueur3d,cfg.longTravee,cfg.portes.filter(p=>(p.mur||'pignon_g')==='lp_sud')).forEach(z=>{
+      addBox(_groups.secondary,z.len,plH,plT,-halfL+z.start+z.len/2,plH/2,-halfW-plOff,cncMat);
     });
   }
-  // Long pan Nord
-  if (cfg.plaqNord) {
-    const lpNordP = cfg.portes.filter(p=>(p.mur||'pignon_g')==='lp_nord');
-    getFreeLongPanZones(longueur3d, cfg.longTravee, lpNordP).forEach(z => {
-      const segW = z.len, segX = -halfL + z.start + segW/2;
-      addBox(_groups.secondary, segW, plH, plT, segX, plH/2, halfW+plOff, cncMat);
+  if(cfg.plaqNord){
+    getFreeLongPanZones(longueur3d,cfg.longTravee,cfg.portes.filter(p=>(p.mur||'pignon_g')==='lp_nord')).forEach(z=>{
+      addBox(_groups.secondary,z.len,plH,plT,-halfL+z.start+z.len/2,plH/2,halfW+plOff,cncMat);
     });
   }
-  // Pignon gauche
-  if (cfg.plaqPigG) {
-    const pgPortes = cfg.portes.filter(p=>(p.mur||'pignon_g')==='pignon_g');
-    getFreePignonZones(W, pgPortes).forEach(z => {
-      const segD = z.len, segZ = -halfW + z.start + segD/2;
-      addBox(_groups.secondary, plT, plH, segD, -halfL-plOff, plH/2, segZ, cncMat);
+  if(cfg.plaqPigG){
+    getFreePignonZones(W,cfg.portes.filter(p=>(p.mur||'pignon_g')==='pignon_g')).forEach(z=>{
+      addBox(_groups.secondary,plT,plH,z.len,-halfL-plOff,plH/2,-halfW+z.start+z.len/2,cncMat);
     });
   }
-  // Pignon droit
-  if (cfg.plaqPigD) {
-    const pdPortes = cfg.portes.filter(p=>(p.mur||'pignon_d')==='pignon_d');
-    getFreePignonZones(W, pdPortes).forEach(z => {
-      const segD = z.len, segZ = -halfW + z.start + segD/2;
-      addBox(_groups.secondary, plT, plH, segD, halfL+plOff, plH/2, segZ, cncMat);
+  if(cfg.plaqPigD){
+    getFreePignonZones(W,cfg.portes.filter(p=>(p.mur||'pignon_d')==='pignon_d')).forEach(z=>{
+      addBox(_groups.secondary,plT,plH,z.len,halfL+plOff,plH/2,-halfW+z.start+z.len/2,cncMat);
     });
   }
 
-  // ===== CROISILLONS MURAUX + TOITURE (secondary) =====
-  cfg.croisillons.forEach(tNum => {
-    const x1=-halfL+(tNum-1)*cfg.longTravee, x2=x1+cfg.longTravee;
-    // Croisillons muraux (long pans)
-    addBeam(_groups.secondary,{x:x1,y:.4,z:-halfW},{x:x2,y:hLeft-.4,z:-halfW},.04,.04,cMat);
-    addBeam(_groups.secondary,{x:x2,y:.4,z:-halfW},{x:x1,y:hLeft-.4,z:-halfW},.04,.04,cMat);
-    addBeam(_groups.secondary,{x:x1,y:.4,z:halfW},{x:x2,y:hRight-.4,z:halfW},.04,.04,cMat);
-    addBeam(_groups.secondary,{x:x2,y:.4,z:halfW},{x:x1,y:hRight-.4,z:halfW},.04,.04,cMat);
-
-    // Croisillons en toiture (dans les mêmes travées)
-    if (!isMono) {
-      // Left versant roof bracing
-      const lA1={x:x1,y:hLeft,z:-halfW}, lA2={x:x2,y:hLeft,z:-halfW};
-      const lB1={x:x1,y:ridgeH,z:0}, lB2={x:x2,y:ridgeH,z:0};
-      // Perpendicular offset to place on roof surface
-      const ldy=ridgeH-hLeft, ldz=halfW, ll=Math.sqrt(ldy*ldy+ldz*ldz);
-      let lpY=ldz/ll, lpZ=-ldy/ll; if(lpY<0){lpY=-lpY;lpZ=-lpZ;}
-      const crOff = arbaProf.h/2 + 0.03;
-      const coY=lpY*crOff, coZ=lpZ*crOff;
-      addBeam(_groups.secondary,
-        {x:x1,y:lA1.y+coY,z:lA1.z+coZ},{x:x2,y:lB2.y+coY,z:lB2.z+coZ},.04,.04,cMat);
-      addBeam(_groups.secondary,
-        {x:x2,y:lA2.y+coY,z:lA2.z+coZ},{x:x1,y:lB1.y+coY,z:lB1.z+coZ},.04,.04,cMat);
-      // Right versant roof bracing
-      const rA1={x:x1,y:hRight,z:halfW}, rA2={x:x2,y:hRight,z:halfW};
-      const rB1={x:x1,y:ridgeH,z:0}, rB2={x:x2,y:ridgeH,z:0};
-      const rdy=ridgeH-hRight, rdz=-halfW, rl=Math.sqrt(rdy*rdy+rdz*rdz);
-      let rpY=rdz/rl, rpZ=-rdy/rl; if(rpY<0){rpY=-rpY;rpZ=-rpZ;}
-      const crOY=rpY*crOff, crOZ=rpZ*crOff;
-      addBeam(_groups.secondary,
-        {x:x1,y:rA1.y+crOY,z:rA1.z+crOZ},{x:x2,y:rB2.y+crOY,z:rB2.z+crOZ},.04,.04,cMat);
-      addBeam(_groups.secondary,
-        {x:x2,y:rA2.y+crOY,z:rA2.z+crOZ},{x:x1,y:rB1.y+crOY,z:rB1.z+crOZ},.04,.04,cMat);
-    } else {
-      // Mono pente: single roof plane
-      const hz=cfg.monoSens==='gauche'?-halfW:halfW, hy=cfg.monoSens==='gauche'?hLeft:hRight;
-      const lz=cfg.monoSens==='gauche'?halfW:-halfW, ly=cfg.monoSens==='gauche'?hRight:hLeft;
-      const mdy=ly-hy, mdz=lz-hz, ml=Math.sqrt(mdy*mdy+mdz*mdz);
-      let mpY=mdz/ml, mpZ=-mdy/ml; if(mpY<0){mpY=-mpY;mpZ=-mpZ;}
-      const crOff=arbaProf.h/2+0.03, mcY=mpY*crOff, mcZ=mpZ*crOff;
-      addBeam(_groups.secondary,{x:x1,y:hy+mcY,z:hz+mcZ},{x:x2,y:ly+mcY,z:lz+mcZ},.04,.04,cMat);
-      addBeam(_groups.secondary,{x:x2,y:hy+mcY,z:hz+mcZ},{x:x1,y:ly+mcY,z:lz+mcZ},.04,.04,cMat);
-    }
-  });
-
-  // ===== PORTES (secondary) — pignons + long pans =====
+  // Portes
   cfg.portes.forEach(p => {
     const mur = p.mur || (p.pignon==='droit'?'pignon_d':'pignon_g');
-    if (mur === 'pignon_g' || mur === 'pignon_d') {
-      const pigX = mur==='pignon_g'?-halfL-.08:halfL+.08;
-      const doorZ = -halfW + p.posY + p.largeur/2;
-      addBox(_groups.secondary, .08, p.hauteur, p.largeur+.2, pigX, p.hauteur/2, doorZ, dMat);
-      addBox(_groups.secondary, .1, p.hauteur-.1, p.largeur-.1, pigX, p.hauteur/2, doorZ,
-        new THREE.MeshStandardMaterial({color:0x1a1a1a, roughness:0.9, metalness:0}));
-      addBox(_groups.secondary, .06, .06, p.largeur+.4, pigX, p.hauteur+.06, doorZ, stDark);
+    if(mur==='pignon_g'||mur==='pignon_d'){
+      const pigX=mur==='pignon_g'?-halfL-.08:halfL+.08;
+      const doorZ=-halfW+p.posY+p.largeur/2;
+      addBox(_groups.secondary,.08,p.hauteur,p.largeur+.2,pigX,p.hauteur/2,doorZ,dMat);
+      addBox(_groups.secondary,.1,p.hauteur-.1,p.largeur-.1,pigX,p.hauteur/2,doorZ,
+        new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:0.9,metalness:0}));
+      addBox(_groups.secondary,.06,.06,p.largeur+.4,pigX,p.hauteur+.06,doorZ,stDark);
     } else {
-      // Long pan door
-      const isSud = mur === 'lp_sud';
-      const wallZ = isSud ? -halfW-.08 : halfW+.08;
-      const travIdx = (p.travee||1) - 1;
-      const doorX = -halfL + travIdx * cfg.longTravee + cfg.longTravee/2;
-      const wallH = isSud ? hLeft : hRight;
-      const dH = Math.min(p.hauteur, wallH);
-      addBox(_groups.secondary, p.largeur+.2, dH, .08, doorX, dH/2, wallZ, dMat);
-      addBox(_groups.secondary, p.largeur-.1, dH-.1, .1, doorX, dH/2, wallZ,
-        new THREE.MeshStandardMaterial({color:0x1a1a1a, roughness:0.9, metalness:0}));
-      addBox(_groups.secondary, p.largeur+.4, .06, .06, doorX, dH+.06, wallZ, stDark);
+      const isSud=mur==='lp_sud';
+      const wallZ=isSud?-halfW-.08:halfW+.08;
+      const travIdx=(p.travee||1)-1;
+      const doorX=-halfL+travIdx*cfg.longTravee+cfg.longTravee/2;
+      const wallH=isSud?hLeft:hRight;
+      const dH=Math.min(p.hauteur,wallH);
+      addBox(_groups.secondary,p.largeur+.2,dH,.08,doorX,dH/2,wallZ,dMat);
+      addBox(_groups.secondary,p.largeur-.1,dH-.1,.1,doorX,dH/2,wallZ,
+        new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:0.9,metalness:0}));
+      addBox(_groups.secondary,p.largeur+.4,.06,.06,doorX,dH+.06,wallZ,stDark);
     }
   });
 
-  // ===== AUVENT =====
-  const buildAuv = (side) => {
-    const isL = side==='left';
-    const prof = isL?cfg.auventGProf:cfg.auventDProf;
-    const aP = (isL?cfg.auventGPente:cfg.auventDPente)/100;
-    const aDrop = prof*aP;
-    const aNb = isL?cfg.auventGNbTrav:cfg.auventDNbTrav;
-    const aNbP = isL?cfg.auventGNbPannes:cfg.auventDNbPannes;
-    const aGou = isL?cfg.auventGGousset:cfg.auventDGousset;
-    const aLen = aNb*cfg.longTravee;
-    const aX0 = -aLen/2;
-    const zBase = isL?-halfW:halfW;
-    const zTip = isL?-halfW-prof:halfW+prof;
-    const yBase = isL?hLeft:hRight;
-    const yTip = yBase-aDrop;
-
-    for (let i=0; i<=aNb; i++) {
-      const px = aX0+i*cfg.longTravee;
-      // Arbalétrier auvent
-      addIBeam(_groups.structure,{x:px,y:yBase,z:zBase},{x:px,y:yTip,z:zTip}, arbaProf, stMat, stF);
-      // Poutre de renfort horizontale (triangulated cantilever support)
+  // Auvent
+  const buildAuv=(side)=>{
+    const isL=side==='left';
+    const prof=isL?cfg.auventGProf:cfg.auventDProf;
+    const aP=(isL?cfg.auventGPente:cfg.auventDPente)/100;
+    const aDrop=prof*aP;
+    const aNb=isL?cfg.auventGNbTrav:cfg.auventDNbTrav;
+    const aNbP=isL?cfg.auventGNbPannes:cfg.auventDNbPannes;
+    const aLen=aNb*cfg.longTravee;
+    const aX0=-aLen/2;
+    const zBase=isL?-halfW:halfW, zTip=isL?-halfW-prof:halfW+prof;
+    const yBase=isL?hLeft:hRight, yTip=yBase-aDrop;
+    for(let i=0; i<=aNb; i++){
+      const px=aX0+i*cfg.longTravee;
+      addIBeam(_groups.structure,{x:px,y:yBase,z:zBase},{x:px,y:yTip,z:zTip},arbaProf,stMat,stF);
       addBeam(_groups.structure,{x:px,y:yTip,z:zBase},{x:px,y:yTip,z:zTip},.10,.14,stMat);
-      // Gousset auvent (triangle renfort)
-      addGoussetTri(_groups.structure,
-        {x:px, y:yBase, z:zBase},
-        {x:px, y:yTip, z:zBase},
-        {x:px, y:yTip, z:zTip}, 0.012, gMat);
+      addGoussetTri(_groups.structure,{x:px,y:yBase,z:zBase},{x:px,y:yTip,z:zBase},{x:px,y:yTip,z:zTip},0.012,gMat);
     }
-    // Pannes auvent (on top of rafter)
-    const ady=yTip-yBase, adz=zTip-zBase, al=Math.sqrt(ady*ady+adz*adz);
-    let apY=adz/al, apZ=-ady/al; if(apY<0){apY=-apY;apZ=-apZ;}
-    const apOff=arbaProf.h/2+panH/2;
-    const aoY=apY*apOff, aoZ=apZ*apOff;
-    for (let j=1; j<=aNbP; j++) {
+    const ady=yTip-yBase,adz=zTip-zBase,al=Math.sqrt(ady*ady+adz*adz);
+    let apY=adz/al,apZ=-ady/al; if(apY<0){apY=-apY;apZ=-apZ;}
+    const apOff=arbaProf.h/2+panH/2, aoY=apY*apOff, aoZ=apZ*apOff;
+    for(let j=1; j<=aNbP; j++){
       const t=j/(aNbP+1);
-      const py=yBase+ady*t+aoY, pz=zBase+adz*t+aoZ;
-      addBox(_groups.structure, aLen, panH, panW, 0, py, pz, pMat);
+      addBox(_groups.structure,aLen,panH,panW,0,yBase+ady*t+aoY,zBase+adz*t+aoZ,pMat);
     }
-    // Toiture auvent
-    const oha = .3;
-    const arOff = arbaProf.h/2 + 0.02;
-    const arOY = apY*arOff, arOZ = apZ*arOff;
-    if (isL) {
-      addQuad(_groups.roof,{x:aX0-oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0+aLen+oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0-oha,y:yTip+arOY,z:zTip-oha+arOZ},{x:aX0+aLen+oha,y:yTip+arOY,z:zTip-oha+arOZ},auvRoofMat(cfg));
+    const oha=.3, arOff=arbaProf.h/2+panH+0.02;
+    const arOY=apY*arOff, arOZ=apZ*arOff;
+    if(isL){
+      addQuad(_groups.roof,{x:aX0-oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0+aLen+oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0-oha,y:yTip+arOY,z:zTip-oha+arOZ},{x:aX0+aLen+oha,y:yTip+arOY,z:zTip-oha+arOZ},roofMat(cfg));
     } else {
-      addQuad(_groups.roof,{x:aX0-oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0+aLen+oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0-oha,y:yTip+arOY,z:zTip+oha+arOZ},{x:aX0+aLen+oha,y:yTip+arOY,z:zTip+oha+arOZ},auvRoofMat(cfg));
+      addQuad(_groups.roof,{x:aX0-oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0+aLen+oha,y:yBase+arOY,z:zBase+arOZ},{x:aX0-oha,y:yTip+arOY,z:zTip+oha+arOZ},{x:aX0+aLen+oha,y:yTip+arOY,z:zTip+oha+arOZ},roofMat(cfg));
     }
   };
-  if (cfg.auventG) buildAuv('left');
-  if (cfg.auventD) buildAuv('right');
+  if(cfg.auventG) buildAuv('left');
+  if(cfg.auventD) buildAuv('right');
 
-  // ===== APPENTIS =====
-  const buildApp = (side) => {
-    const isL = side==='left';
-    const appW2 = isL?cfg.appGLarg:cfg.appDLarg;
-    const appHp = isL?cfg.appGHpot:cfg.appDHpot;
-    const appNb = isL?cfg.appGNbTrav:cfg.appDNbTrav;
-    const appLT = isL?cfg.appGLongTrav:cfg.appDLongTrav;
-    const appP = (isL?cfg.appGPente:cfg.appDPente)/100;
-    const appNbP = isL?cfg.appGNbPannes:cfg.appDNbPannes;
-    const appGou = isL?cfg.appGGousset:cfg.appDGousset;
-    const appLen = appNb*appLT;
-    const aX0 = -appLen/2;
-    const zMain = isL?-halfW:halfW;
-    const zExt = isL?-halfW-appW2:halfW+appW2;
-    const attH = appHp + appW2*appP;
-
-    for (let i=0; i<=appNb; i++) {
-      const px = aX0+i*appLT;
-      // Poteau extérieur appentis (I-beam)
-      addIPost(_groups.structure, px, zExt, appHp, potProf, stMat, stF);
-      // Platine pied
-      addBox(_groups.structure, potProf.b+0.06, 0.025, potProf.h+0.06, px, 0.0125, zExt, stDark);
-      // Arbalétrier appentis (I-beam)
-      addIBeam(_groups.structure, {x:px,y:appHp,z:zExt},{x:px,y:attH,z:zMain}, arbaProf, stMat, stF);
-      // Gousset jarret appentis
-      const ady=attH-appHp, adz=zMain-zExt, al=Math.sqrt(ady*ady+adz*adz);
-      const adyN=ady/al, adzN=adz/al;
-      addGoussetTri(_groups.structure,
-        {x:px, y:appHp, z:zExt},
-        {x:px, y:appHp-appGou, z:zExt},
-        {x:px, y:appHp+adyN*appGou, z:zExt+adzN*appGou}, 0.012, gMat);
+  // Appentis
+  const buildApp=(side)=>{
+    const isL=side==='left';
+    const appW2=isL?cfg.appGLarg:cfg.appDLarg;
+    const appHp=isL?cfg.appGHpot:cfg.appDHpot;
+    const appNb=isL?cfg.appGNbTrav:cfg.appDNbTrav;
+    const appLT=isL?cfg.appGLongTrav:cfg.appDLongTrav;
+    const appP=(isL?cfg.appGPente:cfg.appDPente)/100;
+    const appNbP=isL?cfg.appGNbPannes:cfg.appDNbPannes;
+    const appGou=isL?cfg.appGGousset:cfg.appDGousset;
+    const appLen=appNb*appLT, aX0=-appLen/2;
+    const zMain=isL?-halfW:halfW, zExt=isL?-halfW-appW2:halfW+appW2;
+    const attH=appHp+appW2*appP;
+    for(let i=0; i<=appNb; i++){
+      const px=aX0+i*appLT;
+      addIPost(_groups.structure,px,zExt,appHp,potProf,stMat,stF);
+      addBox(_groups.structure,potProf.b+0.06,0.025,potProf.h+0.06,px,0.0125,zExt,stDark);
+      addIBeam(_groups.structure,{x:px,y:appHp,z:zExt},{x:px,y:attH,z:zMain},arbaProf,stMat,stF);
+      const ady2=attH-appHp,adz2=zMain-zExt,al2=Math.sqrt(ady2*ady2+adz2*adz2);
+      const adyN2=ady2/al2,adzN2=adz2/al2;
+      addGoussetTri(_groups.structure,{x:px,y:appHp,z:zExt},{x:px,y:appHp-arbaProf.h,z:zExt},{x:px,y:appHp+adyN2*appGou,z:zExt+adzN2*appGou},0.012,gMat);
     }
-    // Pannes appentis (on top)
-    const ady=attH-appHp, adz=zMain-zExt, al=Math.sqrt(ady*ady+adz*adz);
-    let apY=adz/al, apZ=-ady/al; if(apY<0){apY=-apY;apZ=-apZ;}
-    const apOff=arbaProf.h/2+panH/2;
-    const aoY=apY*apOff, aoZ=apZ*apOff;
-    for (let j=0; j<=appNbP; j++) {
+    const ady=attH-appHp,adz=zMain-zExt,al=Math.sqrt(ady*ady+adz*adz);
+    let apY=adz/al,apZ=-ady/al; if(apY<0){apY=-apY;apZ=-apZ;}
+    const apOff=arbaProf.h/2+panH/2, aoY=apY*apOff, aoZ=apZ*apOff;
+    for(let j=0; j<=appNbP; j++){
       const t=j/Math.max(appNbP,1);
-      addBox(_groups.structure, appLen, panH, panW, 0, appHp+ady*t+aoY, zExt+adz*t+aoZ, pMat);
+      addBox(_groups.structure,appLen,panH,panW,0,appHp+ady*t+aoY,zExt+adz*t+aoZ,pMat);
     }
-    // Toiture appentis
-    const oha=.3, dir=isL?-1:1;
-    const arOff=arbaProf.h/2+0.02;
-    const arOY=apY*arOff, arOZ=apZ*arOff;
-    addQuad(_groups.roof,{x:aX0-oha,y:attH+arOY,z:zMain+arOZ},{x:aX0+appLen+oha,y:attH+arOY,z:zMain+arOZ},{x:aX0-oha,y:appHp+arOY,z:zExt+dir*oha+arOZ},{x:aX0+appLen+oha,y:appHp+arOY,z:zExt+dir*oha+arOZ},appRoofMat(cfg));
-    // Bardage ext appentis
+    const oha=.3,dir=isL?-1:1;
+    const arOff=arbaProf.h/2+panH+0.02, arOY=apY*arOff, arOZ=apZ*arOff;
+    addQuad(_groups.roof,{x:aX0-oha,y:attH+arOY,z:zMain+arOZ},{x:aX0+appLen+oha,y:attH+arOY,z:zMain+arOZ},{x:aX0-oha,y:appHp+arOY,z:zExt+dir*oha+arOZ},{x:aX0+appLen+oha,y:appHp+arOY,z:zExt+dir*oha+arOZ},roofMat(cfg));
     addQuad(_groups.bardage,{x:aX0,y:0,z:zExt+dir*.08},{x:aX0+appLen,y:0,z:zExt+dir*.08},{x:aX0,y:appHp,z:zExt+dir*.08},{x:aX0+appLen,y:appHp,z:zExt+dir*.08},
       new THREE.MeshStandardMaterial({color:0x4878a8,metalness:.15,roughness:.5,side:THREE.DoubleSide,transparent:true,opacity:.6}));
   };
-  if (cfg.appentisG) buildApp('left');
-  if (cfg.appentisD) buildApp('right');
+  if(cfg.appentisG) buildApp('left');
+  if(cfg.appentisD) buildApp('right');
 
-  // ===== CAMERA INIT =====
-  if (_orbitState.needsInit) {
-    const maxD = Math.max(L, W, ridgeH);
-    _orbitState.dist = maxD * 1.4;
-    _orbitState.target.y = ridgeH * 0.4;
-    _orbitState.needsInit = false;
+  // Caméra init
+  if(_orbitState.needsInit){
+    const maxD=Math.max(L,W,ridgeH);
+    _orbitState.dist=maxD*1.4;
+    _orbitState.target.y=ridgeH*0.4;
+    _orbitState.needsInit=false;
   }
 }
 
-// ========== 3D INIT ON TAB SWITCH ==========
-const origSwitchTab = switchTab;
-window.switchTab = function(name, btn) {
-  document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
-  if (name === '3d') {
-    if (!_scene3d) { setTimeout(() => { init3D(); }, 80); }
-    else { resize3D(); update3D(); }
+// Init 3D au chargement
+window.addEventListener('load', () => {
+  setTimeout(() => { init3D(); }, 80);
+});
+
+// ========== DEMANDE DE DEVIS ==========
+function demanderDevis() {
+  const c = getConfig();
+
+  const typeLabels = {
+    double_pente: 'Double pente',
+    double_pente_desaxe: 'Double pente désaxé',
+    mono_pente: 'Mono pente'
+  };
+  const couvLabels = {
+    bac_acier_ag: 'Bac acier antigouttes',
+    bac_acier_std: 'Bac acier standard',
+    bac_acier_isole: 'Bac acier isolé (sandwich)',
+    fibrociment: 'Fibro-ciment',
+    tuile: 'Tuile'
+  };
+  const bardLabels = {
+    nergal: 'Tôle Nergal 1070',
+    bac_acier: 'Bac acier nervuré',
+    sandwich: 'Panneau sandwich',
+    bois: 'Bardage bois',
+    fibrociment: 'Fibro-ciment'
+  };
+  const murLabels = {
+    pignon_g: 'Pignon gauche',
+    pignon_d: 'Pignon droit',
+    lp_sud: 'Long pan Sud',
+    lp_nord: 'Long pan Nord'
+  };
+
+  const longueurTotale = (c.nbTravees * c.longTravee).toFixed(1);
+
+  let lines = [];
+  lines.push('=== DEMANDE DE DEVIS — SIMULATEUR 3D ===');
+  lines.push('');
+  lines.push('TYPE DE BÂTIMENT');
+  lines.push('  Toiture : ' + (typeLabels[c.typeBat] || c.typeBat));
+  if (c.typeBat === 'double_pente_desaxe') {
+    lines.push('  Largeur gauche : ' + c.desaxeG + ' m  |  Largeur droite : ' + c.desaxeD + ' m');
   }
-};
+  if (c.typeBat === 'mono_pente') {
+    lines.push('  Côté haut : ' + c.monoSens);
+  }
+
+  lines.push('');
+  lines.push('DIMENSIONS');
+  lines.push('  Portée : ' + c.portee + ' m');
+  lines.push('  Longueur : ' + longueurTotale + ' m  (' + c.nbTravees + ' travées × ' + c.longTravee + ' m)');
+  lines.push('  Hauteur poteaux : ' + c.hauteurPoteau + ' m');
+  lines.push('  Pente : ' + c.pente + ' %');
+
+  lines.push('');
+  lines.push('COUVERTURE');
+  lines.push('  Type : ' + (couvLabels[c.typeCouverture] || c.typeCouverture));
+  if (c.typeCouverture.startsWith('bac_acier')) {
+    lines.push('  Couleur : ' + c.ralCouverture);
+  }
+
+  lines.push('');
+  lines.push('BARDAGE');
+  lines.push('  Type : ' + (bardLabels[c.typeBardage] || c.typeBardage));
+  if (['nergal','bac_acier','sandwich'].includes(c.typeBardage)) {
+    lines.push('  Couleur : ' + c.ralBardage);
+  }
+  const facBard = [c.bardSud && 'Long pan Sud', c.bardNord && 'Long pan Nord', c.bardPigG && 'Pignon gauche', c.bardPigD && 'Pignon droit'].filter(Boolean);
+  lines.push('  Faces bardées : ' + (facBard.length ? facBard.join(', ') : 'Aucune'));
+
+  lines.push('');
+  lines.push('PLAQUES BÉTON');
+  lines.push('  Hauteur : ' + c.plaquesHauteur + ' m — ' + (c.plaquesPos === 'devant' ? 'Devant les poteaux' : 'Dans les poteaux'));
+  const facPlaq = [c.plaqSud && 'Long pan Sud', c.plaqNord && 'Long pan Nord', c.plaqPigG && 'Pignon gauche', c.plaqPigD && 'Pignon droit'].filter(Boolean);
+  lines.push('  Faces : ' + (facPlaq.length ? facPlaq.join(', ') : 'Aucune'));
+
+  if (c.auventG || c.auventD) {
+    lines.push('');
+    lines.push('AUVENTS');
+    if (c.auventG) lines.push('  Gauche : profondeur ' + c.auventGProf + ' m, ' + c.auventGNbTrav + ' travées, pente ' + c.auventGPente + ' %');
+    if (c.auventD) lines.push('  Droit : profondeur ' + c.auventDProf + ' m, ' + c.auventDNbTrav + ' travées, pente ' + c.auventDPente + ' %');
+  }
+
+  if (c.appentisG || c.appentisD) {
+    lines.push('');
+    lines.push('APPENTIS');
+    if (c.appentisG) lines.push('  Gauche : largeur ' + c.appGLarg + ' m, haut. poteau ext. ' + c.appGHpot + ' m, ' + c.appGNbTrav + ' travées, pente ' + c.appGPente + ' %');
+    if (c.appentisD) lines.push('  Droit : largeur ' + c.appDLarg + ' m, haut. poteau ext. ' + c.appDHpot + ' m, ' + c.appDNbTrav + ' travées, pente ' + c.appDPente + ' %');
+  }
+
+  if (c.portes && c.portes.length) {
+    lines.push('');
+    lines.push('PORTES (' + c.portes.length + ')');
+    c.portes.forEach((p, i) => {
+      const loc = murLabels[p.mur] || p.mur;
+      lines.push('  Porte ' + (i+1) + ' — ' + loc + ' : ' + p.largeur.toFixed(2) + ' m × ' + p.hauteur.toFixed(2) + ' m');
+    });
+  } else {
+    lines.push('');
+    lines.push('PORTES : Aucune');
+  }
+
+  lines.push('');
+  lines.push('---');
+  lines.push('Merci de me contacter pour obtenir un devis détaillé.');
+
+  const texte = lines.join('\n');
+
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: 'devis-simulateur', texte: texte }, '*');
+  } else {
+    // Fallback si ouvert directement (hors iframe)
+    alert('Copiez ces informations et envoyez-les via l\'onglet Contact :\n\n' + texte);
+  }
+}
 </script>
 </body>
 </html>
