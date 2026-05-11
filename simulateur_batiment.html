@@ -767,9 +767,9 @@ function update3D() {
 
   const isDesaxe3d = cfg.typeBat === 'double_pente_desaxe';
   const ridgeFromLeft3d = isDesaxe3d ? cfg.desaxeG : W / 2;
-  const hLeft = Hp;
+  let hLeft = Hp;
   let hRight;
-  if (isMono) { const rise = W * cfg.pente / 100; hRight = cfg.monoSens === 'gauche' ? Hp - rise : Hp; }
+  if (isMono) { const rise = W * cfg.pente / 100; if (cfg.monoSens === 'gauche') { hRight = Hp - rise; } else { hLeft = Hp - rise; hRight = Hp; } }
   else hRight = Hp;
   const ridgeH = isMono ? Math.max(hLeft, hRight) : Hp + ridgeFromLeft3d * cfg.pente / 100;
   const ridgeZ = -halfW + ridgeFromLeft3d;
