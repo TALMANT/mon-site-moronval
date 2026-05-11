@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://moronval-constructions.fr/sitemap.xml
