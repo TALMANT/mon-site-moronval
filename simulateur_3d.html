@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur Bâtiment 3D — Moronval Constructions</title>
+<style>
+:root {
+  --primary: #1a1a1a; --secondary: #555; --accent: #185FA5;
+  --bg2: #fff; --border: #ddd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(--primary); display: flex; height: 100vh; overflow: hidden; }
+.sidebar { width: 320px; min-width: 320px; background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.sidebar h1 { font-size: 15px; color: var(--accent); margin-bottom: 2px; }
+.site-header { font-size: 11px; color: var(--secondary); background: #f0f5fb; padding: 7px 10px; border-radius: 4px; border: 1px solid #c8dcf0; }
+.site-header strong { color: var(--accent); }
+.sidebar h2 { font-size: 12px; color: var(--primary); background: #f0f0f0; padding: 5px 8px; border-radius: 4px; margin-top: 2px; cursor: pointer; user-select: none; }
+.sidebar h2::before { content: '▼ '; font-size: 10px; }
+.sidebar h2.collapsed::before { content: '▶ '; }
+.section { display: flex; flex-direction: column; gap: 4px; padding: 3px 0; }
+.section.hidden { display: none; }
+.row { display: flex; align-items: center; gap: 6px; }
+.row label { font-size: 12px; color: var(--secondary); min-width: 130px; flex-shrink: 0; }
+.row input[type=number], .row select { flex: 1; padding: 3px 5px; border: 1px solid var(--border); border-radius: 3px; font-size: 12px; }
+.row input[type=checkbox] { margin: 0; }
+.sub-options { padding-left: 18px; border-left: 2px solid #e0e0d8; margin: 2px 0; display: flex; flex-direction: column; gap: 4px; }
+.porte-config { background: #f9f9f5; border: 1px solid #e0e0d8; border-radius: 4px; padding: 7px; margin-bottom: 3px; }
+.porte-config .porte-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.porte-config .porte-header span { font-size: 12px; font-weight: 600; }
+.btn-small { font-size: 11px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 3px; cursor: pointer; background: #fff; }
+.btn-small.danger { color: #E24B4A; border-color: #E24B4A; }
+.btn-add { font-size: 12px; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent); background: #fff; border-radius: 3px; cursor: pointer; margin-top: 2px; }
+.btn-add:hover { background: #f0f7ff; }
+.main { flex: 1; position: relative; overflow: hidden; }
+#canvas3d { width: 100%; height: 100%; display: block; cursor: grab; }
+#canvas3d:active { cursor: grabbing; }
+.three-info { position: absolute; bottom: 10px; left: 10px; font-size: 11px; color: #888; background: rgba(255,255,255,0.85); padding: 4px 10px; border-radius: 4px; pointer-events: none; }
+.view3d-toolbar { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; z-index: 10; }
+.view3d-toolbar button { padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 500; transition: all 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.view3d-toolbar button.active3d { background: var(--accent); color: #fff; }
+.view3d-toolbar button:not(.active3d) { background: rgba(255,255,255,0.9); color: #555; }
+.view3d-toolbar button:hover { transform: translateY(-1px); }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h1>Simulateur Bâtiment 3D</h1>
+  <div class="site-header">
+    Configurez votre bâtiment en temps réel.<br>
+    <strong>Moronval Constructions</strong> — Contactez-nous pour un devis.
+  </div>
+
+  <!-- TYPE -->
+  <h2 onclick="toggleSection(this)">Type de bâtiment</h2>
+  <div class="section" id="sec-type">
+    <div class="row"><label>Toiture principale</label>
+      <select id="typeBat" onchange="onTypeBatChange();update()">
+        <option value="double_pente">Double pente</option>
+        <option value="double_pente_desaxe">Double pente désaxé</option>
+        <option value="mono_pente">Mono pente</option>
+      </select>
+    </div>
+    <div class="row" id="row-monoSens" style="display:none;"><label>Côté haut</label>
+      <select id="monoSens" onchange="update()">
+        <option value="gauche">Gauche</option>
+        <option value="droit">Droit</option>
+      </select>
+    </div>
+    <div id="row-desaxe" style="display:none;">
+      <div class="row"><label>Largeur gauche (m)</label><input type="number" id="desaxeG" value="8" step="0.1" min="2" onchange="onDesaxeChange();update()"></div>
+      <div class="row"><label>Largeur droite (m)</label><input type="number" id="desaxeD" value="12" step="0.1" min="2" onchange="onDesaxeChange();update()"></div>
+    </div>
+  </div>
+
+  <!-- DIMENSIONS -->
+  <h2 onclick="toggleSection(this)">Dimensions générales</h2>
+  <div class="section" id="sec-dim">
+    <div class="row"><label>Portée ext. poteaux (m)</label><input type="number" id="portee" value="20" step="0.1" min="5" onchange="update()"></div>
+    <div class="row"><label>Nb travées</label><input type="number" id="nbTravees" value="10" min="2" max="30" onchange="update()"></div>
+    <div class="row"><label>Long. travée (m)</label><input type="number" id="longTravee" value="5" step="0.1" min="2" onchange="update()"></div>
+    <div class="row"><label>Pente (%)</label><input type="number" id="pente" value="20" min="5" max="50" onchange="update()"></div>
+    <div class="row"><label>Hauteur poteaux (m)</label><input type="number" id="hauteurPoteau" value="6" step="0.1" min="3" onchange="update()"></div>
+  </div>
+
+  <!-- AUVENT -->
+  <h2 onclick="toggleSection(this)">Auvent</h2>
+  <div class="section" id="sec-auvent">
+    <div class="row"><label>Auvent gauche</label><input type="checkbox" id="auventG" onchange="toggleAuvent();update()"></div>
+    <div class="sub-options" id="sub-auvG" style="display:none;">
+      <div class="row"><label>Profondeur (m)</label><input type="number" id="auventGProf" value="3" step="0.1" min="1" max="10" onchange="update()"></div>
+      <div class="row"><label>Nb travées auvent</label><input type="number" id="auventGNbTrav" value="12" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Pente auvent (%)</label><input type="number" id="auventGPente" value="15" min="3" max="50" onchange="update()"></div>
+      <div class="row"><label>Pannes interméd.</label><input type="number" id="auventGNbPannes" value="2" min="0" max="10" onchange="update()"></div>
+    </div>
+    <div class="row"><label>Auvent droit</label><input type="checkbox" id="auventD" onchange="toggleAuvent();update()"></div>
+    <div class="sub-options" id="sub-auvD" style="display:none;">
+      <div class="row"><label>Profondeur (m)</label><input type="number" id="auventDProf" value="3" step="0.1" min="1" max="10" onchange="update()"></div>
+      <div class="row"><label>Nb travées auvent</label><input type="number" id="auventDNbTrav" value="12" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Pente auvent (%)</label><input type="number" id="auventDPente" value="15" min="3" max="50" onchange="update()"></div>
+      <div class="row"><label>Pannes interméd.</label><input type="number" id="auventDNbPannes" value="2" min="0" max="10" onchange="update()"></div>
+    </div>
+  </div>
+
+  <!-- APPENTIS -->
+  <h2 onclick="toggleSection(this)">Appentis</h2>
+  <div class="section" id="sec-appentis">
+    <div class="row"><label>Appentis gauche</label><input type="checkbox" id="appentisG" onchange="toggleAppentis();update()"></div>
+    <div class="sub-options" id="sub-appG" style="display:none;">
+      <div class="row"><label>Largeur (m)</label><input type="number" id="appGLarg" value="6" step="0.1" min="2" max="15" onchange="update()"></div>
+      <div class="row"><label>Haut. poteau ext. (m)</label><input type="number" id="appGHpot" value="4" step="0.1" min="2" max="10" onchange="update()"></div>
+      <div class="row"><label>Nb travées appentis</label><input type="number" id="appGNbTrav" value="12" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Long. travée app. (m)</label><input type="number" id="appGLongTrav" value="5" step="0.1" min="2" onchange="update()"></div>
+      <div class="row"><label>Pente appentis (%)</label><input type="number" id="appGPente" value="20" min="3" max="50" onchange="update()"></div>
+      <div class="row"><label>Pannes interméd.</label><input type="number" id="appGNbPannes" value="4" min="0" max="15" onchange="update()"></div>
+    </div>
+    <div class="row"><label>Appentis droit</label><input type="checkbox" id="appentisD" onchange="toggleAppentis();update()"></div>
+    <div class="sub-options" id="sub-appD" style="display:none;">
+      <div class="row"><label>Largeur (m)</label><input type="number" id="appDLarg" value="6" step="0.1" min="2" max="15" onchange="update()"></div>
+      <div class="row"><label>Haut. poteau ext. (m)</label><input type="number" id="appDHpot" value="4" step="0.1" min="2" max="10" onchange="update()"></div>
+      <div class="row"><label>Nb travées appentis</label><input type="number" id="appDNbTrav" value="12" min="1" max="30" onchange="update()"></div>
+      <div class="row"><label>Long. travée app. (m)</label><input type="number" id="appDLongTrav" value="5" step="0.1" min="2" onchange="update()"></div>
+      <div class="row"><label>Pente appentis (%)</label><input type="number" id="appDPente" value="20" min="3" max="50" onchange="update()"></div>
+      <div class="row"><label>Pannes interméd.</label><input type="number" id="appDNbPannes" value="4" min="0" max="15" onchange="update()"></div>
+    </div>
+  </div>
+
+  <!-- EMPANNAGE -->
+  <h2 onclick="toggleSection(this)">Empannage</h2>
+  <div class="section" id="sec-emp">
+    <div class="row"><label>Pannes interméd./versant</label><input type="number" id="nbPannesInter" value="6" min="1" max="15" onchange="update()"></div>
+  </div>
+
+  <!-- PLAQUES BETON -->
+  <h2 onclick="toggleSection(this)">Plaques béton</h2>
+  <div class="section" id="sec-plaq">
+    <div class="row"><label>Position</label>
+      <select id="plaquesPos" onchange="update()">
+        <option value="devant">Devant les poteaux</option>
+        <option value="dans">Dans les poteaux</option>
+      </select>
+    </div>
+    <div class="row"><label>Hauteur (m)</label>
+      <select id="plaquesHauteur" onchange="update()">
+        <option value="1.2">1.20 m</option>
+        <option value="2.4" selected>2.40 m</option>
+      </select>
+    </div>
+    <div class="row"><label>Long pan Sud</label><input type="checkbox" id="plaqSud" onchange="update()"></div>
+    <div class="row"><label>Long pan Nord</label><input type="checkbox" id="plaqNord" onchange="update()"></div>
+    <div class="row"><label>Pignon gauche</label><input type="checkbox" id="plaqPigG" onchange="update()"></div>
+    <div class="row"><label>Pignon droit</label><input type="checkbox" id="plaqPigD" onchange="update()"></div>
+  </div>
+
+  <!-- PORTES -->
+  <h2 onclick="toggleSection(this)">Portes</h2>
+  <div class="section" id="sec-portes">
+    <div id="portesContainer"></div>
+    <button class="btn-add" onclick="addPorte()">+ Ajouter une porte</button>
+  </div>
+
+  <!-- COUVERTURE -->
+  <h2 onclick="toggleSection(this)">Couverture</h2>
+  <div class="section" id="sec-couv">
+    <div class="row"><label>Type</label>
+      <select id="typeCouverture" onchange="toggleRalCouv();update()">
+        <option value="bac_acier_ag">Bac acier antigouttes</option>
+        <option value="bac_acier_std">Bac acier standard</option>
+        <option value="bac_acier_isole">Bac acier isolé (sandwich)</option>
+        <option value="fibrociment">Fibro-ciment</option>
+        <option value="tuile">Tuile</option>
+      </select>
+    </div>
+    <div class="row" id="row-ralCouv"><label>Couleur RAL</label>
+      <select id="ralCouverture" onchange="update()">
+        <option value="RAL7016">RAL 7016 — Gris anthracite</option>
+        <option value="RAL5008">RAL 5008 — Bleu gris</option>
+        <option value="RAL8012">RAL 8012 — Brun rouge</option>
+        <option value="RAL9002">RAL 9002 — Blanc gris</option>
+        <option value="RAL1015">RAL 1015 — Ivoire clair</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- BARDAGE -->
+  <h2 onclick="toggleSection(this)">Bardage</h2>
+  <div class="section" id="sec-bard">
+    <div class="row"><label>Type</label>
+      <select id="typeBardage" onchange="toggleRalBard();update()">
+        <option value="nergal">Tôle Nergal 1070</option>
+        <option value="bac_acier">Bac acier nervuré</option>
+        <option value="sandwich">Panneau sandwich</option>
+        <option value="bois">Bardage bois</option>
+        <option value="fibrociment">Fibro-ciment</option>
+      </select>
+    </div>
+    <div class="row" id="row-ralBard"><label>Couleur RAL</label>
+      <select id="ralBardage" onchange="update()">
+        <option value="RAL7016">RAL 7016 — Gris anthracite</option>
+        <option value="RAL5008">RAL 5008 — Bleu gris</option>
+        <option value="RAL8012">RAL 8012 — Brun rouge</option>
+        <option value="RAL9002">RAL 9002 — Blanc gris</option>
+        <option value="RAL1015">RAL 1015 — Ivoire clair</option>
+      </select>
+    </div>
+    <div class="row"><label>Long pan Sud</label><input type="checkbox" id="bardSud" checked onchange="update()"></div>
+    <div class="row"><label>Long pan Nord</label><input type="checkbox" id="bardNord" checked onchange="update()"></div>
+    <div class="row"><label>Pignon gauche</label><input type="checkbox" id="bardPigG" checked onchange="update()"></div>
+    <div class="row"><label>Pignon droit</label><input type="checkbox" id="bardPigD" checked onchange="update()"></div>
+  </div>
+</div>
+
+<div class="main">
+  <canvas id="canvas3d"></canvas>
+  <div class="view3d-toolbar">
+    <button class="active3d" onclick="toggle3DLayer('structure',this)">Charpente</button>
+    <button class="active3d" onclick="toggle3DLayer('roof',this)">Toiture</button>
+    <button class="active3d" onclick="toggle3DLayer('bardage',this)">Bardage</button>
+    <button class="active3d" onclick="toggle3DLayer('secondary',this)">Secondaire</button>
+  </div>
+  <div class="three-info">Clic gauche : rotation — Molette : zoom — Clic droit : déplacer</div>
+</div>
+
+<script>
+// ========== CONFIG ==========
+const PROFILES = {
+  IPE300: { h:.300, b:.150, tw:.007, tf:.011 },
+  IPE330: { h:.330, b:.160, tw:.008, tf:.012 },
+};
+function getProfile(id) { return PROFILES[id] || PROFILES.IPE300; }
+
+const RAL_COLORS = {
+  RAL5008:{hex3d:0x26364A}, RAL7016:{hex3d:0x383E42},
+  RAL8012:{hex3d:0x66332B}, RAL9002:{hex3d:0xD7D5CB}, RAL1015:{hex3d:0xE6D2B5},
+};
+function getRalHex3d(id) { return (RAL_COLORS[id]||RAL_COLORS.RAL7016).hex3d; }
+
+let portes = [];
+
+function getConfig() {
+  return {
+    typeBat: document.getElementById('typeBat').value,
+    desaxeG: parseFloat(document.getElementById('desaxeG').value),
+    desaxeD: parseFloat(document.getElementById('desaxeD').value),
+    monoSens: document.getElementById('monoSens').value,
+    auventG: document.getElementById('auventG').checked,
+    auventGProf: parseFloat(document.getElementById('auventGProf').value),
+    auventGNbTrav: parseInt(document.getElementById('auventGNbTrav').value),
+    auventGPente: parseFloat(document.getElementById('auventGPente').value),
+    auventGNbPannes: parseInt(document.getElementById('auventGNbPannes').value),
+    auventGGousset: 1.2,
+    auventD: document.getElementById('auventD').checked,
+    auventDProf: parseFloat(document.getElementById('auventDProf').value),
+    auventDNbTrav: parseInt(document.getElementById('auventDNbTrav').value),
+    auventDPente: parseFloat(document.getElementById('auventDPente').value),
+    auventDNbPannes: parseInt(document.getElementById('auventDNbPannes').value),
+    auventDGousset: 1.2,
+    appentisG: document.getElementById('appentisG').checked,
+    appGLarg: parseFloat(document.getElementById('appGLarg').value),
+    appGHpot: parseFloat(document.getElementById('appGHpot').value),
+    appGNbTrav: parseInt(document.getElementById('appGNbTrav').value),
+    appGLongTrav: parseFloat(document.getElementById('appGLongTrav').value),
+    appGPente: parseFloat(document.getElementById('appGPente').value),
+    appGNbPannes: parseInt(document.getElementById('appGNbPannes').value),
+    appGGousset: 1.5,
+    appentisD: document.getElementById('appentisD').checked,
+    appDLarg: parseFloat(document.getElementById('appDLarg').value),
+    appDHpot: parseFloat(document.getElementById('appDHpot').value),
+    appDNbTrav: parseInt(document.getElementById('appDNbTrav').value),
+    appDLongTrav: parseFloat(document.getElementById('appDLongTrav').value),
+    appDPente: parseFloat(document.getElementById('appDPente').value),
+    appDNbPannes: parseInt(document.getElementById('appDNbPannes').value),
+    appDGousset: 1.5,
+    portee: parseFloat(document.getElementById('portee').value),
+    nbTravees: parseInt(document.getElementById('nbTravees').value),
+    longTravee: parseFloat(document.getElementById('longTravee').value),
+    pente: parseFloat(document.getElementById('pente').value),
+    hauteurPoteau: parseFloat(document.getElementById('hauteurPoteau').value),
+    nbPannesInter: parseInt(document.getElementById('nbPannesInter').value),
+    distFaitiere: 0.16,
+    goussetBas: 2,
+    goussetHaut: 1,
+    plaquesPos: document.getElementById('plaquesPos').value,
+    plaquesHauteur: parseFloat(document.getElementById('plaquesHauteur').value),
+    plaqSud: document.getElementById('plaqSud').checked,
+    plaqNord: document.getElementById('plaqNord').checked,
+    plaqPigG: document.getElementById('plaqPigG').checked,
+    plaqPigD: document.getElementById('plaqPigD').checked,
+    portes: portes,
+    typeCouverture: document.getElementById('typeCouverture').value,
+    typeBardage: document.getElementById('typeBardage').value,
+    bardSud: document.getElementById('bardSud').checked,
+    bardNord: document.getElementById('bardNord').checked,
+    bardPigG: document.getElementById('bardPigG').checked,
+    bardPigD: document.getElementById('bardPigD').checked,
+    profilPoteaux: 'IPE300',
+    profilArba: 'IPE330',
+    ralCouverture: document.getElementById('ralCouverture').value,
+    ralBardage: document.getElementById('ralBardage').value,
+  };
+}
+
+// ========== UI ==========
+function toggleSection(h2) {
+  h2.classList.toggle('collapsed');
+  h2.nextElementSibling.classList.toggle('hidden');
+}
+function onTypeBatChange() {
+  const t = document.getElementById('typeBat').value;
+  document.getElementById('row-monoSens').style.display = t==='mono_pente' ? 'flex' : 'none';
+  document.getElementById('row-desaxe').style.display = t==='double_pente_desaxe' ? 'block' : 'none';
+  if (t==='double_pente_desaxe') onDesaxeChange();
+}
+function onDesaxeChange() {
+  const g = parseFloat(document.getElementById('desaxeG').value)||8;
+  const d = parseFloat(document.getElementById('desaxeD').value)||12;
+  document.getElementById('portee').value = (g+d).toFixed(1);
+}
+function toggleAuvent() {
+  document.getElementById('sub-auvG').style.display = document.getElementById('auventG').checked ? 'flex' : 'none';
+  document.getElementById('sub-auvD').style.display = document.getElementById('auventD').checked ? 'flex' : 'none';
+}
+function toggleAppentis() {
+  document.getElementById('sub-appG').style.display = document.getElementById('appentisG').checked ? 'flex' : 'none';
+  document.getElementById('sub-appD').style.display = document.getElementById('appentisD').checked ? 'flex' : 'none';
+}
+function toggleRalCouv() {
+  document.getElementById('row-ralCouv').style.display = document.getElementById('typeCouverture').value.startsWith('bac_acier') ? 'flex' : 'none';
+}
+function toggleRalBard() {
+  document.getElementById('row-ralBard').style.display = ['nergal','bac_acier','sandwich'].includes(document.getElementById('typeBardage').value) ? 'flex' : 'none';
+}
+function renderPortes() {
+  const c = document.getElementById('portesContainer'); c.innerHTML = '';
+  const cfg = getConfig();
+  portes.forEach((p, i) => {
+    const isLP = p.mur==='lp_sud'||p.mur==='lp_nord';
+    const div = document.createElement('div'); div.className = 'porte-config';
+    div.innerHTML = `<div class="porte-header"><span>Porte ${i+1}</span><button class="btn-small danger" onclick="removePorte(${i})">×</button></div>
+      <div class="row"><label>Mur</label><select onchange="portes[${i}].mur=this.value;onPorteMurChange(${i});renderPortes();update()">
+        <option value="pignon_g" ${p.mur==='pignon_g'?'selected':''}>Pignon gauche</option>
+        <option value="pignon_d" ${p.mur==='pignon_d'?'selected':''}>Pignon droit</option>
+        <option value="lp_sud" ${p.mur==='lp_sud'?'selected':''}>Long pan Sud</option>
+        <option value="lp_nord" ${p.mur==='lp_nord'?'selected':''}>Long pan Nord</option>
+      </select></div>
+      ${isLP?`<div class="row"><label>Travée n°</label><select onchange="portes[${i}].travee=parseInt(this.value);portes[${i}].posY=(portes[${i}].travee-1)*${cfg.longTravee};update()">
+        ${Array.from({length:cfg.nbTravees},(_,t)=>`<option value="${t+1}" ${p.travee===(t+1)?'selected':''}>Travée ${t+1}</option>`).join('')}
+      </select></div>
+      <div class="row"><label>Largeur (m)</label><input type="number" value="${p.largeur}" step="0.5" min="1" max="${cfg.longTravee}" onchange="portes[${i}].largeur=Math.min(parseFloat(this.value),${cfg.longTravee});update()"></div>`
+      :`<div class="row"><label>Position Y (m)</label><input type="number" value="${p.posY}" step="0.1" min="0" onchange="portes[${i}].posY=parseFloat(this.value);update()"></div>
+      <div class="row"><label>Largeur (m)</label><input type="number" value="${p.largeur}" step="0.5" min="1" max="12" onchange="portes[${i}].largeur=parseFloat(this.value);update()"></div>`}
+      <div class="row"><label>Hauteur (m)</label><input type="number" value="${p.hauteur}" step="0.5" min="1" max="10" onchange="portes[${i}].hauteur=parseFloat(this.value);update()"></div>`;
+    c.appendChild(div);
+  });
+}
+function onPorteMurChange(i) {
+  const p=portes[i], cfg=getConfig();
+  if (p.mur==='lp_sud'||p.mur==='lp_nord') { p.travee=p.travee||1; p.largeur=Math.min(p.largeur,cfg.longTravee); p.posY=(p.travee-1)*cfg.longTravee; }
+}
+function addPorte() { portes.push({mur:'pignon_g',posY:0,largeur:4,hauteur:4,travee:1}); renderPortes(); update(); }
+function removePorte(i) { portes.splice(i,1); renderPortes(); update(); }
+
+function getFreePignonZones(portee, pPortes) {
+  const sorted=[...pPortes].sort((a,b)=>a.posY-b.posY); const zones=[]; let cur=0;
+  sorted.forEach(p=>{ if(p.posY>cur) zones.push({start:cur,len:p.posY-cur}); cur=p.posY+p.largeur; });
+  if(cur<portee) zones.push({start:cur,len:portee-cur}); return zones;
+}
+function getFreeLongPanZones(longueur, longTravee, lpPortes) {
+  const sorted=[...lpPortes].map(p=>{ const c=(((p.travee||1)-1)*longTravee+longTravee/2); return {start:c-p.largeur/2,end:c+p.largeur/2}; }).sort((a,b)=>a.start-b.start);
+  const zones=[]; let cur=0;
+  sorted.forEach(s=>{ if(s.start>cur) zones.push({start:cur,len:s.start-cur}); cur=Math.max(cur,s.end); });
+  if(cur<longueur) zones.push({start:cur,len:longueur-cur}); return zones;
+}
+
+function update() { if (window._scene3d) update3D(); }
+
+// ========== INIT ==========
+toggleRalCouv(); toggleRalBard(); renderPortes();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+var _scene3d, _camera3d, _renderer3d;
+var _groups = { structure:null, roof:null, bardage:null, secondary:null };
+var _layerVisible = { structure:true, roof:true, bardage:true, secondary:true };
+var _orbitState = { rotating:false, panning:false, prevX:0, prevY:0, theta:-Math.PI/5, phi:Math.PI/7, dist:50, target:{x:0,y:4,z:0}, needsInit:true };
+
+function toggle3DLayer(name, btn) {
+  _layerVisible[name] = !_layerVisible[name];
+  btn.classList.toggle('active3d');
+  if (_groups[name]) _groups[name].visible = _layerVisible[name];
+}
+
+function init3D() {
+  const canvas = document.getElementById('canvas3d');
+  _renderer3d = new THREE.WebGLRenderer({canvas, antialias:true});
+  _renderer3d.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  _renderer3d.shadowMap.enabled = true;
+  _renderer3d.shadowMap.type = THREE.PCFSoftShadowMap;
+  _renderer3d.toneMapping = THREE.ACESFilmicToneMapping;
+  _renderer3d.toneMappingExposure = 1.1;
+  _renderer3d.outputEncoding = THREE.sRGBEncoding;
+  _scene3d = new THREE.Scene();
+
+  // Ciel
+  const sc=document.createElement('canvas'); sc.width=2; sc.height=512;
+  const sx=sc.getContext('2d'), sg=sx.createLinearGradient(0,0,0,512);
+  sg.addColorStop(0,'#4a90d9'); sg.addColorStop(0.3,'#87b5e0'); sg.addColorStop(0.55,'#bdd4ea'); sg.addColorStop(1,'#eef2f0');
+  sx.fillStyle=sg; sx.fillRect(0,0,2,512);
+  const st=new THREE.CanvasTexture(sc); st.magFilter=THREE.LinearFilter;
+  _scene3d.add(new THREE.Mesh(new THREE.SphereGeometry(180,16,16), new THREE.MeshBasicMaterial({map:st,side:THREE.BackSide,depthWrite:false})));
+
+  _camera3d = new THREE.PerspectiveCamera(40,1,0.5,500);
+
+  // Lumières
+  _scene3d.add(new THREE.AmbientLight(0xf0ece0,0.45));
+  const sun=new THREE.DirectionalLight(0xfff5e0,0.85); sun.position.set(40,55,30); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048); sun.shadow.camera.left=-80; sun.shadow.camera.right=80;
+  sun.shadow.camera.top=80; sun.shadow.camera.bottom=-80; sun.shadow.bias=-0.001; sun.shadow.radius=3;
+  _scene3d.add(sun);
+  _scene3d.add(new THREE.DirectionalLight(0xc0d8ff,0.3).position.set(-20,20,-30) && new THREE.DirectionalLight(0xc0d8ff,0.3));
+  _scene3d.add(new THREE.HemisphereLight(0xb1d8ff,0x8a7a5a,0.35));
+
+  // Sol
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(300,300), new THREE.MeshStandardMaterial({color:0x7a9a5a,roughness:0.95}));
+  ground.rotation.x=-Math.PI/2; ground.position.y=-0.02; ground.receiveShadow=true; _scene3d.add(ground);
+
+  for (const k of Object.keys(_groups)) { _groups[k]=new THREE.Group(); _groups[k].visible=_layerVisible[k]; _scene3d.add(_groups[k]); }
+
+  canvas.addEventListener('mousedown', e=>{ if(e.button===0)_orbitState.rotating=true; if(e.button===2)_orbitState.panning=true; _orbitState.prevX=e.clientX; _orbitState.prevY=e.clientY; });
+  canvas.addEventListener('mousemove', e=>{
+    const dx=e.clientX-_orbitState.prevX, dy=e.clientY-_orbitState.prevY;
+    if(_orbitState.rotating){_orbitState.theta-=dx*0.005; _orbitState.phi=Math.max(0.02,Math.min(Math.PI/2-0.02,_orbitState.phi-dy*0.005));}
+    if(_orbitState.panning){const ps=_orbitState.dist*0.0015,ct=Math.cos(_orbitState.theta),st=Math.sin(_orbitState.theta); _orbitState.target.x+=(-dx*ct)*ps; _orbitState.target.z+=(dx*st)*ps; _orbitState.target.y=Math.max(0,_orbitState.target.y+dy*ps);}
+    _orbitState.prevX=e.clientX; _orbitState.prevY=e.clientY;
+  });
+  canvas.addEventListener('mouseup', ()=>{ _orbitState.rotating=false; _orbitState.panning=false; });
+  canvas.addEventListener('mouseleave', ()=>{ _orbitState.rotating=false; _orbitState.panning=false; });
+  canvas.addEventListener('wheel', e=>{ e.preventDefault(); _orbitState.dist=Math.max(5,Math.min(200,_orbitState.dist*(1+e.deltaY*0.001))); }, {passive:false});
+  canvas.addEventListener('contextmenu', e=>e.preventDefault());
+  let _td=0;
+  canvas.addEventListener('touchstart', e=>{ e.preventDefault(); if(e.touches.length===1){_orbitState.rotating=true;_orbitState.prevX=e.touches[0].clientX;_orbitState.prevY=e.touches[0].clientY;} if(e.touches.length===2)_td=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY); },{passive:false});
+  canvas.addEventListener('touchmove', e=>{ e.preventDefault(); if(e.touches.length===1&&_orbitState.rotating){const dx=e.touches[0].clientX-_orbitState.prevX,dy=e.touches[0].clientY-_orbitState.prevY;_orbitState.theta-=dx*0.005;_orbitState.phi=Math.max(0.02,Math.min(Math.PI/2-0.02,_orbitState.phi-dy*0.005));_orbitState.prevX=e.touches[0].clientX;_orbitState.prevY=e.touches[0].clientY;} if(e.touches.length===2){const d=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY);_orbitState.dist=Math.max(5,Math.min(200,_orbitState.dist*(_td/Math.max(d,1))));_td=d;} },{passive:false});
+  canvas.addEventListener('touchend', ()=>_orbitState.rotating=false);
+
+  resize3D(); window.addEventListener('resize', resize3D);
+  update3D(); animate3D();
+}
+
+function resize3D() {
+  const main=document.querySelector('.main'); if(!main||!_renderer3d)return;
+  const w=main.clientWidth||800, h=main.clientHeight||500;
+  _renderer3d.setSize(w,h); _camera3d.aspect=w/h; _camera3d.updateProjectionMatrix();
+}
+
+function animate3D() {
+  requestAnimationFrame(animate3D); if(!_camera3d||!_renderer3d)return;
+  const s=_orbitState;
+  _camera3d.position.set(s.target.x+s.dist*Math.cos(s.phi)*Math.sin(s.theta), s.target.y+s.dist*Math.sin(s.phi), s.target.z+s.dist*Math.cos(s.phi)*Math.cos(s.theta));
+  _camera3d.lookAt(s.target.x,s.target.y,s.target.z);
+  _renderer3d.render(_scene3d,_camera3d);
+}
+
+// Matériaux
+function steelMat(){return new THREE.MeshStandardMaterial({color:0x1a2a4a,metalness:0.6,roughness:0.3});}
+function steelFlangeMat(){return new THREE.MeshStandardMaterial({color:0x222e50,metalness:0.55,roughness:0.35});}
+function steelDarkMat(){return new THREE.MeshStandardMaterial({color:0x606058,metalness:0.55,roughness:0.35});}
+function panneMat(){return new THREE.MeshStandardMaterial({color:0xd040d0,metalness:0.3,roughness:0.4});}
+function goussetMat(){return new THREE.MeshStandardMaterial({color:0xe8a020,metalness:0.35,roughness:0.35,side:THREE.DoubleSide});}
+function concreteMat(){return new THREE.MeshStandardMaterial({color:0xb8b0a4,roughness:0.92,metalness:0});}
+function doorMat(){return new THREE.MeshStandardMaterial({color:0x28a070,metalness:0.25,roughness:0.5});}
+function slabMat(){return new THREE.MeshStandardMaterial({color:0xc4beb4,roughness:0.85,metalness:0});}
+function chenMat(){return new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:0.6,roughness:0.25});}
+function roofMat(cfg){
+  if(cfg.typeCouverture.startsWith('bac_acier')&&cfg.ralCouverture) return new THREE.MeshStandardMaterial({color:getRalHex3d(cfg.ralCouverture),metalness:0.3,roughness:0.45,side:THREE.DoubleSide});
+  return new THREE.MeshStandardMaterial({color:{fibrociment:0x4a4a44,tuile:0xa86040}[cfg.typeCouverture]||0x2a2a2a,metalness:0.25,roughness:0.55,side:THREE.DoubleSide});
+}
+function bardMat(cfg){
+  if(['nergal','bac_acier','sandwich'].includes(cfg.typeBardage)&&cfg.ralBardage) return new THREE.MeshStandardMaterial({color:getRalHex3d(cfg.ralBardage),metalness:0.25,roughness:0.45,side:THREE.DoubleSide});
+  return new THREE.MeshStandardMaterial({color:{bois:0xb08850,fibrociment:0x888078}[cfg.typeBardage]||0x4878a8,metalness:0.2,roughness:0.5,side:THREE.DoubleSide});
+}
+function bardTransMat(cfg){const m=bardMat(cfg);m.transparent=true;m.opacity=0.7;return m;}
+
+// Helpers géométrie
+function clearGroup(g){while(g.children.length>0){const c=g.children[0];if(c.geometry)c.geometry.dispose();if(c.material){if(Array.isArray(c.material))c.material.forEach(m=>m.dispose());else c.material.dispose();}g.remove(c);}}
+function addBox(g,w,h,d,x,y,z,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;}
+function addBeam(g,p1,p2,w,h,mat){const dx=p2.x-p1.x,dy=p2.y-p1.y,dz=p2.z-p1.z,len=Math.sqrt(dx*dx+dy*dy+dz*dz);if(len<0.01)return;const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,len),mat);m.position.set((p1.x+p2.x)/2,(p1.y+p2.y)/2,(p1.z+p2.z)/2);m.lookAt(p2.x,p2.y,p2.z);m.castShadow=true;g.add(m);}
+function addQuad(g,p1,p2,p3,p4,mat){const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array([p1.x,p1.y,p1.z,p2.x,p2.y,p2.z,p3.x,p3.y,p3.z,p2.x,p2.y,p2.z,p4.x,p4.y,p4.z,p3.x,p3.y,p3.z]),3));geo.computeVertexNormals();const m=new THREE.Mesh(geo,mat);m.castShadow=true;m.receiveShadow=true;g.add(m);}
+function addIPost(g,px,pz,height,prof,mW,mF){const{h,b,tw,tf}=prof;addBox(g,tw,height,h-2*tf,px,height/2,pz,mW);addBox(g,b,height,tf,px,height/2,pz-h/2+tf/2,mF);addBox(g,b,height,tf,px,height/2,pz+h/2-tf/2,mF);}
+function addIBeam(g,p1,p2,prof,mW,mF){const{h,b,tw,tf}=prof,dx=p2.x-p1.x,dy=p2.y-p1.y,dz=p2.z-p1.z,len=Math.sqrt(dx*dx+dy*dy+dz*dz);if(len<0.01)return;addBeam(g,p1,p2,tw,h-2*tf,mW);const pL=Math.sqrt(dy*dy+dz*dz);if(pL<0.01)return;let pY=dz/pL,pZ=-dy/pL;if(pY<0){pY=-pY;pZ=-pZ;}const off=h/2-tf/2,oY=pY*off,oZ=pZ*off;addBeam(g,{x:p1.x,y:p1.y+oY,z:p1.z+oZ},{x:p2.x,y:p2.y+oY,z:p2.z+oZ},b,tf,mF);addBeam(g,{x:p1.x,y:p1.y-oY,z:p1.z-oZ},{x:p2.x,y:p2.y-oY,z:p2.z-oZ},b,tf,mF);}
+function addGoussetTri(g,v1,v2,v3,t,mat){const ax=v2.x-v1.x,ay=v2.y-v1.y,az=v2.z-v1.z,bx=v3.x-v1.x,by=v3.y-v1.y,bz=v3.z-v1.z;let nx=ay*bz-az*by,ny=az*bx-ax*bz,nz=ax*by-ay*bx;const nl=Math.sqrt(nx*nx+ny*ny+nz*nz);if(nl<0.001)return;nx/=nl;ny/=nl;nz/=nl;const ht=t/2,f1={x:v1.x+nx*ht,y:v1.y+ny*ht,z:v1.z+nz*ht},f2={x:v2.x+nx*ht,y:v2.y+ny*ht,z:v2.z+nz*ht},f3={x:v3.x+nx*ht,y:v3.y+ny*ht,z:v3.z+nz*ht},b1={x:v1.x-nx*ht,y:v1.y-ny*ht,z:v1.z-nz*ht},b2={x:v2.x-nx*ht,y:v2.y-ny*ht,z:v2.z-nz*ht},b3={x:v3.x-nx*ht,y:v3.y-ny*ht,z:v3.z-nz*ht};const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array([f1.x,f1.y,f1.z,f2.x,f2.y,f2.z,f3.x,f3.y,f3.z,b3.x,b3.y,b3.z,b2.x,b2.y,b2.z,b1.x,b1.y,b1.z,f1.x,f1.y,f1.z,b1.x,b1.y,b1.z,f2.x,f2.y,f2.z,f2.x,f2.y,f2.z,b1.x,b1.y,b1.z,b2.x,b2.y,b2.z,f2.x,f2.y,f2.z,b2.x,b2.y,b2.z,f3.x,f3.y,f3.z,f3.x,f3.y,f3.z,b2.x,b2.y,b2.z,b3.x,b3.y,b3.z,f3.x,f3.y,f3.z,b3.x,b3.y,b3.z,f1.x,f1.y,f1.z,f1.x,f1.y,f1.z,b3.x,b3.y,b3.z,b1.x,b1.y,b1.z]),3));geo.computeVertexNormals();const m=new THREE.Mesh(geo,mat);m.castShadow=true;g.add(m);}
+
+// ========== SCÈNE 3D ==========
+function update3D() {
+  if (!_groups.structure) return;
+  for (const k of Object.keys(_groups)) clearGroup(_groups[k]);
+
+  const cfg = getConfig();
+  const isMono = cfg.typeBat === 'mono_pente';
+  const L = cfg.nbTravees * cfg.longTravee;
+  const W = cfg.portee;
+  const Hp = cfg.hauteurPoteau;
+  const halfL = L/2, halfW = W/2;
+  const isDesaxe = cfg.typeBat === 'double_pente_desaxe';
+  const ridgeFromLeft = isDesaxe ? cfg.desaxeG : W/2;
+
+  // ===== CORRECTION BUG MONO PENTE CÔTÉ DROIT =====
+  // hLeft et hRight calculés correctement selon le côté haut
+  let hLeft = Hp, hRight = Hp;
+  if (isMono) {
+    const rise = W * cfg.pente / 100;
+    if (cfg.monoSens === 'gauche') { hRight = Hp - rise; }  // gauche haut → droite basse
+    else                           { hLeft  = Hp - rise; }  // droit haut  → gauche basse
+  }
+  const ridgeH = isMono ? Math.max(hLeft, hRight) : Hp + ridgeFromLeft * cfg.pente / 100;
+  const ridgeZ = -halfW + ridgeFromLeft;
+
+  const potProf = getProfile(cfg.profilPoteaux);
+  const arbaProf = getProfile(cfg.profilArba);
+  const stM=steelMat(), stF=steelFlangeMat(), stD=steelDarkMat();
+  const pM=panneMat(), gM=goussetMat(), rM=roofMat(cfg), bM=bardMat(cfg), btM=bardTransMat(cfg);
+  const dM=doorMat(), chM=chenMat(), cncM=concreteMat(), slM=slabMat();
+
+  // Dalle
+  addBox(_groups.secondary, L+1, 0.15, W+1, 0, -0.075, 0, slM);
+
+  // Portiques
+  for (let i=0; i<=cfg.nbTravees; i++) {
+    const px = -halfL + i*cfg.longTravee;
+    addIPost(_groups.structure, px, -halfW, hLeft, potProf, stM, stF);
+    addIPost(_groups.structure, px,  halfW, hRight, potProf, stM, stF);
+    addBox(_groups.structure, potProf.b+0.08, 0.025, potProf.h+0.08, px, 0.0125, -halfW, stD);
+    addBox(_groups.structure, potProf.b+0.08, 0.025, potProf.h+0.08, px, 0.0125,  halfW, stD);
+    if (isMono) {
+      const hz=cfg.monoSens==='gauche'?-halfW:halfW, hy=cfg.monoSens==='gauche'?hLeft:hRight;
+      const lz=cfg.monoSens==='gauche'?halfW:-halfW, ly=cfg.monoSens==='gauche'?hRight:hLeft;
+      addIBeam(_groups.structure, {x:px,y:hy,z:hz}, {x:px,y:ly,z:lz}, arbaProf, stM, stF);
+    } else {
+      addIBeam(_groups.structure, {x:px,y:hLeft,z:-halfW}, {x:px,y:ridgeH,z:ridgeZ}, arbaProf, stM, stF);
+      addIBeam(_groups.structure, {x:px,y:hRight,z:halfW}, {x:px,y:ridgeH,z:ridgeZ}, arbaProf, stM, stF);
+    }
+    // Goussets
+    const gB=cfg.goussetBas, aH=arbaProf.h;
+    if (!isMono) {
+      const lDy=ridgeH-hLeft,lDz=ridgeZ-(-halfW),lL=Math.sqrt(lDy*lDy+lDz*lDz);
+      addGoussetTri(_groups.structure,{x:px,y:hLeft,z:-halfW},{x:px,y:hLeft-aH,z:-halfW},{x:px,y:hLeft+lDy/lL*gB,z:-halfW+lDz/lL*gB},0.012,gM);
+      const rDy=ridgeH-hRight,rDz=ridgeZ-halfW,rL=Math.sqrt(rDy*rDy+rDz*rDz);
+      addGoussetTri(_groups.structure,{x:px,y:hRight,z:halfW},{x:px,y:hRight-aH,z:halfW},{x:px,y:hRight+rDy/rL*gB,z:halfW+rDz/rL*gB},0.012,gM);
+      const gH=cfg.goussetHaut;
+      addGoussetTri(_groups.structure,{x:px,y:ridgeH,z:ridgeZ},{x:px,y:ridgeH-lDy/lL*gH,z:ridgeZ-lDz/lL*gH},{x:px,y:ridgeH-rDy/rL*gH,z:ridgeZ-rDz/rL*gH},0.012,gM);
+    } else {
+      const hz=cfg.monoSens==='gauche'?-halfW:halfW, hy=cfg.monoSens==='gauche'?hLeft:hRight;
+      const lz=cfg.monoSens==='gauche'?halfW:-halfW, ly=cfg.monoSens==='gauche'?hRight:hLeft;
+      const mDy=ly-hy,mDz=lz-hz,mL=Math.sqrt(mDy*mDy+mDz*mDz);
+      addGoussetTri(_groups.structure,{x:px,y:hy,z:hz},{x:px,y:hy-aH,z:hz},{x:px,y:hy+mDy/mL*gB,z:hz+mDz/mL*gB},0.012,gM);
+      addGoussetTri(_groups.structure,{x:px,y:ly,z:lz},{x:px,y:ly-aH,z:lz},{x:px,y:ly-mDy/mL*gB,z:lz-mDz/mL*gB},0.012,gM);
+    }
+  }
+
+  // Lisses
+  for (let i=0;i<cfg.nbTravees;i++){
+    const x1=-halfL+i*cfg.longTravee,x2=x1+cfg.longTravee;
+    addBeam(_groups.structure,{x:x1,y:hLeft,z:-halfW},{x:x2,y:hLeft,z:-halfW},0.10,0.08,stD);
+    addBeam(_groups.structure,{x:x1,y:hRight,z:halfW},{x:x2,y:hRight,z:halfW},0.10,0.08,stD);
+  }
+
+  // Pannes
+  const panW=0.075,panH=0.225;
+  const drawPannes=(z1,y1,z2,y2,nbP,hasF)=>{
+    const dz=z2-z1,dy=y2-y1,tot=Math.sqrt(dz*dz+dy*dy);
+    const dF=hasF?cfg.distFaitiere:0,usable=tot-dF,sp=usable/Math.max(nbP+(hasF?1:0),1);
+    const pL=Math.sqrt(dy*dy+dz*dz);let pY=dz/pL,pZ=-dy/pL;if(pY<0){pY=-pY;pZ=-pZ;}
+    const off=arbaProf.h/2+panH/2,oY=pY*off,oZ=pZ*off;
+    for(let j=0;j<=nbP;j++){const t=j===0?0:sp*j/tot;addBox(_groups.structure,L,panH,panW,0,y1+dy*t+oY,z1+dz*t+oZ,pM);}
+    if(hasF){const ft=(tot-dF)/tot;addBox(_groups.structure,L,panH,panW,0,y1+dy*ft+oY,z1+dz*ft+oZ,pM);}
+  };
+  if(isMono){
+    const hz=cfg.monoSens==='gauche'?-halfW:halfW,hy=cfg.monoSens==='gauche'?hLeft:hRight;
+    const lz=cfg.monoSens==='gauche'?halfW:-halfW,ly=cfg.monoSens==='gauche'?hRight:hLeft;
+    drawPannes(hz,hy,lz,ly,cfg.nbPannesInter,false);
+  } else {
+    drawPannes(-halfW,hLeft,ridgeZ,ridgeH,cfg.nbPannesInter,true);
+    drawPannes(halfW,hRight,ridgeZ,ridgeH,cfg.nbPannesInter,true);
+  }
+  if(!isMono) addBox(_groups.structure,L+0.3,0.14,0.14,0,ridgeH+arbaProf.h/2+0.07,ridgeZ,stD);
+
+  // Toiture
+  const oh=0.5,rOff=arbaProf.h/2+panH+0.02;
+  if(isMono){
+    const hz=cfg.monoSens==='gauche'?-halfW-oh:halfW+oh,hy=cfg.monoSens==='gauche'?hLeft:hRight;
+    const lz=cfg.monoSens==='gauche'?halfW+oh:-halfW-oh,ly=cfg.monoSens==='gauche'?hRight:hLeft;
+    const ml=Math.sqrt((ly-hy)**2+(lz-hz)**2);let rpY=(lz-hz)/ml,rpZ=-(ly-hy)/ml;if(rpY<0){rpY=-rpY;rpZ=-rpZ;}
+    addQuad(_groups.roof,{x:-halfL-oh,y:hy+rpY*rOff,z:hz+rpZ*rOff},{x:halfL+oh,y:hy+rpY*rOff,z:hz+rpZ*rOff},{x:-halfL-oh,y:ly+rpY*rOff,z:lz+rpZ*rOff},{x:halfL+oh,y:ly+rpY*rOff,z:lz+rpZ*rOff},rM);
+  } else {
+    const ll=Math.sqrt((ridgeH-hLeft)**2+(ridgeZ-(-halfW))**2);let lpY=(ridgeZ-(-halfW))/ll,lpZ=-(ridgeH-hLeft)/ll;if(lpY<0){lpY=-lpY;lpZ=-lpZ;}
+    addQuad(_groups.roof,{x:-halfL-oh,y:hLeft+lpY*rOff,z:-halfW+lpZ*rOff},{x:halfL+oh,y:hLeft+lpY*rOff,z:-halfW+lpZ*rOff},{x:-halfL-oh,y:ridgeH+lpY*rOff,z:ridgeZ+lpZ*rOff},{x:halfL+oh,y:ridgeH+lpY*rOff,z:ridgeZ+lpZ*rOff},rM);
+    const rl=Math.sqrt((ridgeH-hRight)**2+(ridgeZ-halfW)**2);let rpY=(ridgeZ-halfW)/rl,rpZ=-(ridgeH-hRight)/rl;if(rpY<0){rpY=-rpY;rpZ=-rpZ;}
+    addQuad(_groups.roof,{x:-halfL-oh,y:ridgeH+rpY*rOff,z:ridgeZ+rpZ*rOff},{x:halfL+oh,y:ridgeH+rpY*rOff,z:ridgeZ+rpZ*rOff},{x:-halfL-oh,y:hRight+rpY*rOff,z:halfW+rpZ*rOff},{x:halfL+oh,y:hRight+rpY*rOff,z:halfW+rpZ*rOff},rM);
+    addBox(_groups.roof,L+oh*2,0.06,0.35,0,ridgeH+rOff+0.04,ridgeZ,stD);
+  }
+
+  // Chéneaux
+  const cS=0.22,cOff=0.2,cLen=L+1;
+  addBox(_groups.roof,cLen,cS*0.6,cS,0,hLeft-cS*0.3,-halfW-cOff,chM);
+  addBox(_groups.roof,cLen,cS*0.6,cS,0,hRight-cS*0.3,halfW+cOff,chM);
+  [{x:-halfL-0.4,z:-halfW-cOff,h:hLeft},{x:halfL+0.4,z:-halfW-cOff,h:hLeft},{x:-halfL-0.4,z:halfW+cOff,h:hRight},{x:halfL+0.4,z:halfW+cOff,h:hRight}].forEach(p=>{
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,p.h,8),chM);m.position.set(p.x,p.h/2,p.z);_groups.roof.add(m);
+  });
+
+  // Bardage
+  if(cfg.bardSud) addQuad(_groups.bardage,{x:-halfL,y:0,z:-halfW-.12},{x:halfL,y:0,z:-halfW-.12},{x:-halfL,y:hLeft,z:-halfW-.12},{x:halfL,y:hLeft,z:-halfW-.12},bM);
+  if(cfg.bardNord) addQuad(_groups.bardage,{x:-halfL,y:0,z:halfW+.12},{x:halfL,y:0,z:halfW+.12},{x:-halfL,y:hRight,z:halfW+.12},{x:halfL,y:hRight,z:halfW+.12},bM);
+  if(isMono){
+    if(cfg.bardPigG) addQuad(_groups.bardage,{x:-halfL-.04,y:0,z:-halfW},{x:-halfL-.04,y:0,z:halfW},{x:-halfL-.04,y:hLeft,z:-halfW},{x:-halfL-.04,y:hRight,z:halfW},btM);
+    if(cfg.bardPigD) addQuad(_groups.bardage,{x:halfL+.04,y:0,z:-halfW},{x:halfL+.04,y:0,z:halfW},{x:halfL+.04,y:hLeft,z:-halfW},{x:halfL+.04,y:hRight,z:halfW},btM);
+  } else {
+    if(cfg.bardPigG){addQuad(_groups.bardage,{x:-halfL-.04,y:0,z:-halfW},{x:-halfL-.04,y:0,z:ridgeZ},{x:-halfL-.04,y:hLeft,z:-halfW},{x:-halfL-.04,y:ridgeH,z:ridgeZ},btM);addQuad(_groups.bardage,{x:-halfL-.04,y:0,z:ridgeZ},{x:-halfL-.04,y:0,z:halfW},{x:-halfL-.04,y:ridgeH,z:ridgeZ},{x:-halfL-.04,y:hRight,z:halfW},btM);}
+    if(cfg.bardPigD){addQuad(_groups.bardage,{x:halfL+.04,y:0,z:-halfW},{x:halfL+.04,y:0,z:ridgeZ},{x:halfL+.04,y:hLeft,z:-halfW},{x:halfL+.04,y:ridgeH,z:ridgeZ},btM);addQuad(_groups.bardage,{x:halfL+.04,y:0,z:ridgeZ},{x:halfL+.04,y:0,z:halfW},{x:halfL+.04,y:ridgeH,z:ridgeZ},{x:halfL+.04,y:hRight,z:halfW},btM);}
+  }
+
+  // Plaques béton
+  const plH=cfg.plaquesHauteur,plT=0.15,plOff=cfg.plaquesPos==='devant'?-(potProf.h/2+plT/2+.05):0;
+  const lon=cfg.nbTravees*cfg.longTravee;
+  if(cfg.plaqSud) getFreeLongPanZones(lon,cfg.longTravee,cfg.portes.filter(p=>(p.mur||'pignon_g')==='lp_sud')).forEach(z=>addBox(_groups.secondary,z.len,plH,plT,-halfL+z.start+z.len/2,plH/2,-halfW-plOff,cncM));
+  if(cfg.plaqNord) getFreeLongPanZones(lon,cfg.longTravee,cfg.portes.filter(p=>(p.mur||'pignon_g')==='lp_nord')).forEach(z=>addBox(_groups.secondary,z.len,plH,plT,-halfL+z.start+z.len/2,plH/2,halfW+plOff,cncM));
+  if(cfg.plaqPigG) getFreePignonZones(W,cfg.portes.filter(p=>(p.mur||'pignon_g')==='pignon_g')).forEach(z=>addBox(_groups.secondary,plT,plH,z.len,-halfL-plOff,plH/2,-halfW+z.start+z.len/2,cncM));
+  if(cfg.plaqPigD) getFreePignonZones(W,cfg.portes.filter(p=>(p.mur||'pignon_d')==='pignon_d')).forEach(z=>addBox(_groups.secondary,plT,plH,z.len,halfL+plOff,plH/2,-halfW+z.start+z.len/2,cncM));
+
+  // Portes
+  cfg.portes.forEach(p=>{
+    const mur=p.mur||'pignon_g';
+    if(mur==='pignon_g'||mur==='pignon_d'){
+      const px=mur==='pignon_g'?-halfL-.08:halfL+.08,dz=-halfW+p.posY+p.largeur/2;
+      addBox(_groups.secondary,.08,p.hauteur,p.largeur+.2,px,p.hauteur/2,dz,dM);
+      addBox(_groups.secondary,.1,p.hauteur-.1,p.largeur-.1,px,p.hauteur/2,dz,new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:.9}));
+      addBox(_groups.secondary,.06,.06,p.largeur+.4,px,p.hauteur+.06,dz,stD);
+    } else {
+      const isSud=mur==='lp_sud',wz=isSud?-halfW-.08:halfW+.08;
+      const dx=-halfL+((p.travee||1)-1)*cfg.longTravee+cfg.longTravee/2,dH=Math.min(p.hauteur,isSud?hLeft:hRight);
+      addBox(_groups.secondary,p.largeur+.2,dH,.08,dx,dH/2,wz,dM);
+      addBox(_groups.secondary,p.largeur-.1,dH-.1,.1,dx,dH/2,wz,new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:.9}));
+      addBox(_groups.secondary,p.largeur+.4,.06,.06,dx,dH+.06,wz,stD);
+    }
+  });
+
+  // Auvent
+  const buildAuv=side=>{
+    const isL=side==='left',prof=isL?cfg.auventGProf:cfg.auventDProf,aP=(isL?cfg.auventGPente:cfg.auventDPente)/100;
+    const aNb=isL?cfg.auventGNbTrav:cfg.auventDNbTrav,aNbP=isL?cfg.auventGNbPannes:cfg.auventDNbPannes;
+    const aLen=aNb*cfg.longTravee,aX0=-aLen/2;
+    const zB=isL?-halfW:halfW,zT=isL?-halfW-prof:halfW+prof,yB=isL?hLeft:hRight,yT=yB-prof*aP;
+    for(let i=0;i<=aNb;i++){const px=aX0+i*cfg.longTravee;addIBeam(_groups.structure,{x:px,y:yB,z:zB},{x:px,y:yT,z:zT},arbaProf,stM,stF);addBeam(_groups.structure,{x:px,y:yT,z:zB},{x:px,y:yT,z:zT},.10,.14,stM);addGoussetTri(_groups.structure,{x:px,y:yB,z:zB},{x:px,y:yT,z:zB},{x:px,y:yT,z:zT},0.012,gM);}
+    const al=Math.sqrt((yT-yB)**2+(zT-zB)**2);let apY=(zT-zB)/al,apZ=-(yT-yB)/al;if(apY<0){apY=-apY;apZ=-apZ;}
+    const aOff=arbaProf.h/2+panH/2,aoY=apY*aOff,aoZ=apZ*aOff;
+    for(let j=1;j<=aNbP;j++){const t=j/(aNbP+1);addBox(_groups.structure,aLen,panH,panW,0,yB+(yT-yB)*t+aoY,zB+(zT-zB)*t+aoZ,pM);}
+    const arOff=arbaProf.h/2+panH+0.02,arOY=apY*arOff,arOZ=apZ*arOff,oha=.3;
+    if(isL) addQuad(_groups.roof,{x:aX0-oha,y:yB+arOY,z:zB+arOZ},{x:aX0+aLen+oha,y:yB+arOY,z:zB+arOZ},{x:aX0-oha,y:yT+arOY,z:zT-oha+arOZ},{x:aX0+aLen+oha,y:yT+arOY,z:zT-oha+arOZ},roofMat(cfg));
+    else     addQuad(_groups.roof,{x:aX0-oha,y:yB+arOY,z:zB+arOZ},{x:aX0+aLen+oha,y:yB+arOY,z:zB+arOZ},{x:aX0-oha,y:yT+arOY,z:zT+oha+arOZ},{x:aX0+aLen+oha,y:yT+arOY,z:zT+oha+arOZ},roofMat(cfg));
+  };
+  if(cfg.auventG) buildAuv('left');
+  if(cfg.auventD) buildAuv('right');
+
+  // Appentis
+  const buildApp=side=>{
+    const isL=side==='left',aW=isL?cfg.appGLarg:cfg.appDLarg,aHp=isL?cfg.appGHpot:cfg.appDHpot;
+    const aNb=isL?cfg.appGNbTrav:cfg.appDNbTrav,aLT=isL?cfg.appGLongTrav:cfg.appDLongTrav;
+    const aP=(isL?cfg.appGPente:cfg.appDPente)/100,aNbP=isL?cfg.appGNbPannes:cfg.appDNbPannes,aGou=isL?cfg.appGGousset:cfg.appDGousset;
+    const aLen=aNb*aLT,aX0=-aLen/2,zM=isL?-halfW:halfW,zE=isL?-halfW-aW:halfW+aW,attH=aHp+aW*aP;
+    for(let i=0;i<=aNb;i++){const px=aX0+i*aLT;addIPost(_groups.structure,px,zE,aHp,potProf,stM,stF);addBox(_groups.structure,potProf.b+0.06,0.025,potProf.h+0.06,px,0.0125,zE,stD);addIBeam(_groups.structure,{x:px,y:aHp,z:zE},{x:px,y:attH,z:zM},arbaProf,stM,stF);const al=Math.sqrt((attH-aHp)**2+(zM-zE)**2);addGoussetTri(_groups.structure,{x:px,y:aHp,z:zE},{x:px,y:aHp-arbaProf.h,z:zE},{x:px,y:aHp+(attH-aHp)/al*aGou,z:zE+(zM-zE)/al*aGou},0.012,gM);}
+    const al=Math.sqrt((attH-aHp)**2+(zM-zE)**2);let apY=(zM-zE)/al,apZ=-(attH-aHp)/al;if(apY<0){apY=-apY;apZ=-apZ;}
+    const apOff=arbaProf.h/2+panH/2,aoY=apY*apOff,aoZ=apZ*apOff;
+    for(let j=0;j<=aNbP;j++){const t=j/Math.max(aNbP,1);addBox(_groups.structure,aLen,panH,panW,0,aHp+(attH-aHp)*t+aoY,zE+(zM-zE)*t+aoZ,pM);}
+    const arOff=arbaProf.h/2+panH+0.02,arOY=apY*arOff,arOZ=apZ*arOff,oha=.3,dir=isL?-1:1;
+    addQuad(_groups.roof,{x:aX0-oha,y:attH+arOY,z:zM+arOZ},{x:aX0+aLen+oha,y:attH+arOY,z:zM+arOZ},{x:aX0-oha,y:aHp+arOY,z:zE+dir*oha+arOZ},{x:aX0+aLen+oha,y:aHp+arOY,z:zE+dir*oha+arOZ},roofMat(cfg));
+    addQuad(_groups.bardage,{x:aX0,y:0,z:zE+dir*.08},{x:aX0+aLen,y:0,z:zE+dir*.08},{x:aX0,y:aHp,z:zE+dir*.08},{x:aX0+aLen,y:aHp,z:zE+dir*.08},new THREE.MeshStandardMaterial({color:0x4878a8,metalness:.15,roughness:.5,side:THREE.DoubleSide,transparent:true,opacity:.6}));
+  };
+  if(cfg.appentisG) buildApp('left');
+  if(cfg.appentisD) buildApp('right');
+
+  // Caméra
+  if(_orbitState.needsInit){_orbitState.dist=Math.max(L,W,ridgeH)*1.4;_orbitState.target.y=ridgeH*0.4;_orbitState.needsInit=false;}
+}
+
+window.addEventListener('load', ()=>setTimeout(init3D, 80));
+</script>
+</body>
+</html>
