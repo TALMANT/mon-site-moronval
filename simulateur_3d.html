@@ -32,6 +32,8 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
 .btn-small.danger { color: #E24B4A; border-color: #E24B4A; }
 .btn-add { font-size: 12px; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent); background: #fff; border-radius: 3px; cursor: pointer; margin-top: 2px; }
 .btn-add:hover { background: #f0f7ff; }
+.btn-devis { width: 100%; padding: 10px; background: var(--accent); color: #fff; border: none; border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 6px; letter-spacing: 0.3px; }
+.btn-devis:hover { background: #1450a0; }
 .main { flex: 1; position: relative; overflow: hidden; }
 #canvas3d { width: 100%; height: 100%; display: block; cursor: grab; }
 #canvas3d:active { cursor: grabbing; }
@@ -209,6 +211,8 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #eee; color: var(
     <div class="row"><label>Pignon gauche</label><input type="checkbox" id="bardPigG" checked onchange="update()"></div>
     <div class="row"><label>Pignon droit</label><input type="checkbox" id="bardPigD" checked onchange="update()"></div>
   </div>
+
+  <button class="btn-devis" onclick="envoyerDevis()">Demander un devis →</button>
 </div>
 
 <div class="main">
@@ -374,6 +378,23 @@ function getFreeLongPanZones(longueur, longTravee, lpPortes) {
 }
 
 function update() { if (window._scene3d) update3D(); }
+
+function envoyerDevis() {
+  const cfg = getConfig();
+  const types = { double_pente: 'Double pente', double_pente_desaxe: 'Double pente désaxé', mono_pente: 'Mono pente' };
+  const couv = { bac_acier_simple: 'Bac acier simple peau', bac_acier_isole: 'Bac acier isolé', sandwich: 'Panneau sandwich', fibrociment: 'Fibro-ciment' };
+  const bard = { nergal: 'Nergal', bac_acier: 'Bac acier', sandwich: 'Sandwich', fibrociment: 'Fibro-ciment', aucun: 'Aucun' };
+  let texte = `Bâtiment configuré via le simulateur Moronval Constructions :\n`;
+  texte += `- Type : ${types[cfg.typeBat] || cfg.typeBat}`;
+  if (cfg.typeBat === 'mono_pente') texte += ` (côté haut : ${cfg.monoSens})`;
+  texte += `\n- Dimensions : ${cfg.portee} m × ${cfg.longueur} m, H. poteau ${cfg.hauteurPoteau} m`;
+  texte += `\n- Pente : ${cfg.pente} %`;
+  texte += `\n- Couverture : ${couv[cfg.typeCouverture] || cfg.typeCouverture}`;
+  texte += `\n- Bardage : ${bard[cfg.typeBardage] || cfg.typeBardage}`;
+  if (cfg.portes && cfg.portes.length) texte += `\n- Portes : ${cfg.portes.length} ouverture(s)`;
+  texte += `\n\nMerci de me contacter pour un devis.`;
+  window.parent.postMessage({ type: 'devis-simulateur', texte }, '*');
+}
 
 // ========== INIT ==========
 toggleRalCouv(); toggleRalBard(); renderPortes();
